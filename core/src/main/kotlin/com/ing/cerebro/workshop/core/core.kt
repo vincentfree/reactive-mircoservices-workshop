@@ -1,4 +1,7 @@
+package com.ing.cerebro.workshop.core
+
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.RoutingContext
 
 object ContentTypes {
     const val json = "application/json"

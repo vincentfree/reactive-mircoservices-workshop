@@ -1,25 +1,53 @@
 package com.ing.cerebro.workshop.verticle
 
-import com.ing.cerebro.workshop.service.ClientService
 import com.ing.cerebro.workshop.service.HelloService
 import com.ing.cerebro.workshop.service.TimeoutService
+import io.vertx.config.ConfigRetriever
+import io.vertx.config.ConfigRetrieverOptions
+import io.vertx.config.ConfigStoreOptions
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Promise
 import io.vertx.core.http.HttpServer
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 
 class RestVerticle : AbstractVerticle() {
 
     override fun start(startPromise: Promise<Void>) {
-        val port = config().getInteger("port",8080)
-        val server: HttpServer = vertx.createHttpServer()
-        val router: Router = Router.router(vertx)
-        HelloService(router).finalize()
-        TimeoutService(router,vertx).finalize()
-        ClientService(router, vertx).finalize()
-        server.requestHandler(router)
-        server.listen(port)
-        println("Server started on port $port")
-        startPromise.complete()
+        val retriever: ConfigRetriever = ConfigRetriever.create(vertx, RetrieverConfig.options)
+        retriever.getConfig {
+            val config = it.result()
+            val port = config.getInteger("server.port", 8080)
+            val server: HttpServer = vertx.createHttpServer()
+            val router: Router = Router.router(vertx)
+            HelloService(router).finalize()
+            TimeoutService(router, vertx).apply {
+                listenForConfig()
+                finalize()
+            }
+            server.requestHandler(router)
+            server.listen(port)
+            println("Server started on port $port")
+            startPromise.complete()
+        }
+    }
+}
+
+object RetrieverConfig {
+    val options = ConfigRetrieverOptions().apply {
+        val fileConfig = ConfigStoreOptions()
+            .setType("file")
+            .setFormat("properties")
+            .setConfig(JsonObject().put("path", "application.properties"))
+        val k8sConfig = ConfigStoreOptions()
+            .setType("configmap")
+            .setOptional(true)
+            .setConfig(
+                JsonObject()
+                    .put("namespace", "workshop-reactive")
+                    .put("name", "client-config")
+            )
+        addStore(fileConfig)
+        addStore(k8sConfig)
     }
 }
