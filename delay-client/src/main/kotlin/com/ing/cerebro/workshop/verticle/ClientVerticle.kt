@@ -46,16 +46,3 @@ object RetrieverConfig {
         addStore(k8sConfig)
     }
 }
-
-class CerebroJavaProducer<K,V> : SuperClass<K,V> {
-    constructor(configs: Map<String, Any>) : super(configs)
-    constructor(configs: Map<String, Any>, keySerializer: Serializer<K>, valueSerializer: Serializer<V>) : super(configs, keySerializer, valueSerializer)
-    constructor(properties: Properties) : super(properties)
-    constructor(properties: Properties, keySerializer:Serializer<K>, valueSerializer:Serializer<V>) : super(properties, keySerializer, valueSerializer)
-}
-open class SuperClass<K,V> {
-    constructor(configs: Map<String, Any> ) {}
-    constructor(configs: Map<String, Any>, keySerializer: Serializer<K>, valueSerializer:Serializer<V>) {}
-    constructor(properties: Properties) {}
-    constructor(properties: Properties, keySerializer:Serializer<K>, valueSerializer:Serializer<V>) {}
-}
