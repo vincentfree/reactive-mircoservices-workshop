@@ -1,5 +1,6 @@
 package com.ing.cerebro.workshop.verticle
 
+import com.ing.cerebro.workshop.core.RetrieverConfig
 import com.ing.cerebro.workshop.service.ClientService
 import io.vertx.config.ConfigRetriever
 import io.vertx.config.ConfigRetrieverOptions
@@ -25,24 +26,5 @@ class ClientVerticle : AbstractVerticle() {
             println("Server started on port $port")
             startPromise.complete()
         }
-    }
-}
-
-object RetrieverConfig {
-    val options = ConfigRetrieverOptions().apply {
-        val fileConfig = ConfigStoreOptions()
-            .setType("file")
-            .setFormat("properties")
-            .setConfig(JsonObject().put("path", "application.properties"))
-        val k8sConfig = ConfigStoreOptions()
-            .setType("configmap")
-            .setOptional(true)
-            .setConfig(
-                JsonObject()
-                    .put("namespace", "workshop-reactive")
-                    .put("name", "client-config")
-            )
-        addStore(fileConfig)
-        addStore(k8sConfig)
     }
 }
