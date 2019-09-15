@@ -19,7 +19,7 @@ steps:
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: '-pl com.ing.cerebro.workshop:reactive-rest-app package'
+    goals: '-pl com.ing.cerebro.workshop:reactive-rest-app -am package'
     #goals: 'package'
 - task: Docker@2
   inputs:
@@ -32,3 +32,35 @@ steps:
     command: 'buildAndPush'
     Dockerfile: 'reactive-rest-app/Dockerfile'
     buildContext: '**'
+    
+# - task: HelmInstaller@1
+#   inputs:
+#     helmVersionToInstall: 'latest'
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'helm template --name test-$(Build.BuildId) --output-dir target vertx-rest-service'
+    #script: 'helm template --name test-${Build.BuildId} --output-dir target vertx-rest-service'
+
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: 'AKS k8s-geg-dev-k8s-geg-dev-reactive-workshop-1568230047818'
+    namespace: 'reactive-workshop'
+    command: 'apply'
+    useConfigurationFile: true
+    configuration: 'reactive-rest-app/target/vertx-rest-service/templates/deployment.yaml'
+    secretType: 'dockerRegistry'
+    containerRegistryType: 'Container Registry'
+    dockerRegistryEndpoint: 'cerebro-reg'
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: 'AKS k8s-geg-dev-k8s-geg-dev-reactive-workshop-1568230047818'
+    namespace: 'reactive-workshop'
+    command: 'apply'
+    useConfigurationFile: true
+    configuration: 'reactive-rest-app/target/vertx-rest-service/templates/service.yaml'
+    secretType: 'dockerRegistry'
+    containerRegistryType: 'Container Registry'
+    dockerRegistryEndpoint: 'cerebro-reg'
