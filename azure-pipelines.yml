@@ -30,4 +30,4 @@ steps:
     repository: 'cerebro'
     command: 'buildAndPush'
     Dockerfile: 'reactive-rest-app/Dockerfile'
-    buildContext: 'reactive-rest-app/target'
+    buildContext: '**'
