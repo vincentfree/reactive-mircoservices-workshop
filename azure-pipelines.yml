@@ -20,8 +20,14 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
-#- task: Docker@2
-#  inputs:
-#    repository: 'vertx-rest-service'
-#    command: 'build'
-#    Dockerfile: '**/Dockerfile'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'cerebro-reg'
+    command: 'login'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'cerebro-reg'
+    repository: 'cerebro'
+    command: 'buildAndPush'
+    Dockerfile: 'reactive-rest-app/Dockerfile'
+    buildContext: 'reactive-rest-app/target'

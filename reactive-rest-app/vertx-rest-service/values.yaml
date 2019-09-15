@@ -7,9 +7,10 @@ namespace: reactive-workshop
 replicaCount: 1
 
 image:
-  repository: vertx-rest-service
-  tag: stable
+  repository: cerebro.azurecr.io/vertx-rest-service
+  tag: latest
   pullPolicy: IfNotPresent
+  port: 8081
 
 imagePullSecrets: []
 nameOverride: ""

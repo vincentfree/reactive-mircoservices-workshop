@@ -14,6 +14,7 @@ import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.jsonObjectOf
 import io.vertx.kotlin.core.json.obj
+import org.slf4j.LoggerFactory
 
 class RestVerticle : AbstractVerticle() {
 
@@ -31,8 +32,11 @@ class RestVerticle : AbstractVerticle() {
             }
             server.requestHandler(router)
             server.listen(port)
-            println("Server started on port $port")
+            logger.info("Server started on port $port")
             startPromise.complete()
         }
+    }
+    companion object {
+        private val logger = LoggerFactory.getLogger(RestVerticle::class.java)
     }
 }
