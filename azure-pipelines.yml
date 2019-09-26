@@ -56,8 +56,8 @@ stages:
               targetType: 'inline'
               script: 'helm template --name test-$(Build.BuildId) --output-dir target vertx-rest-service'
               #script: 'helm template --name test-${Build.BuildId} --output-dir target vertx-rest-service'
-      - job: HelmDeployVertxREST
-        dependsOn: BuildVertxREST
+      - job: KubeDeploy
+        dependsOn: HelmDeployVertxREST
         pool:
           vmImage: 'ubuntu-latest'
         steps:
