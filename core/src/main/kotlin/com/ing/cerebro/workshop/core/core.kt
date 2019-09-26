@@ -28,7 +28,8 @@ object RetrieverConfig {
             ConfigStoreOptions().apply {
                 type = "configmap"
                 isOptional = true
-                config = jsonObjectOf("namespace" to "reactive-workshop", "name" to "client-config")
+                val name = System.getenv("configName") ?: "config"
+                config = jsonObjectOf("namespace" to "reactive-workshop", "name" to name)
             })
     }
 }

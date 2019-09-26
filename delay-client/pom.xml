@@ -132,6 +132,11 @@
             <version>${jackson.databind.version}</version>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
             <groupId>com.ing.cerebro.workshop</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>

@@ -25,6 +25,11 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: release
+              value: {{.Release.Name}}
+            - name: configName
+              value: {{ include "vertx-rest-service.fullname" . }}-config
           ports:
             - name: http
               containerPort: {{.Values.image.port}}

@@ -10,7 +10,7 @@ image:
   repository: cerebro.azurecr.io/vertx-rest-service
   tag: latest
   pullPolicy: IfNotPresent
-  port: 8081
+  port: 8080
 
 imagePullSecrets: []
 nameOverride: ""

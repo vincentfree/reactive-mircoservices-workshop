@@ -17,7 +17,7 @@ class ClientService(private val router: Router, private val vertx: Vertx) : Rout
         vertx.setTimer(time) {
             ctx.response()
                 .putHeader(HttpHeaders.CONTENT_TYPE,ContentTypes.plainText)
-                .end("it took me $time millisecond to return a result")
+                .end("It took me $time milliseconds to return a result!")
         }
     }
 }

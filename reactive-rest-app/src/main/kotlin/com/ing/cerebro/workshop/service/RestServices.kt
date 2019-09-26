@@ -9,76 +9,75 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.client.WebClient
+import io.vertx.ext.web.client.WebClientOptions
 import io.vertx.ext.web.codec.BodyCodec
+import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.ext.web.handler.ResponseTimeHandler
+import io.vertx.ext.web.handler.TimeoutHandler
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
 
 
 class HelloService(private val router: Router) : RouterService {
     override fun finalize(): Router = router.apply {
-        get("/").produces(ContentTypes.json).handler(helloWorld)
-        get("/").produces(ContentTypes.json).handler({it.response()})
-        get("/:name").produces(ContentTypes.json).handler(helloInput)
+        get("/hello").produces(ContentTypes.json).handler(helloWorld)
+        get("/hello/:name").produces(ContentTypes.json).handler(helloInput)
     }
 
     private val helloWorld: (RoutingContext) -> Unit = { context ->
         context.response().apply {
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
-            end(JsonObject().put("message", "Hello world!").encode())
+            isChunked = false
+            end(JsonObject().put("message", "Hello world!").toBuffer())
         }
     }
-    private val helloInput: (RoutingContext) -> Unit = { it.response().end("Hello ${it.pathParam("name")}!") }
+    private val helloInput: (RoutingContext) -> Unit = {
+        it.response().putHeader(HttpHeaders.CONTENT_TYPE,ContentTypes.json)
+            .end(json { obj("message" to "Hello ${it.pathParam("name")}!") }.toBuffer())
+    }
 }
 
-class TimeoutService(private val router: Router, private val vertx: Vertx) : RouterService {
+class TimeoutService(private val router: Router, vertx: Vertx) : RouterService {
 
     private val retriever: ConfigRetriever = ConfigRetriever.create(vertx)
-    var config: JsonObject = retriever.cachedConfig
-    private val client: WebClient = WebClient.create(vertx)
+    private var config: JsonObject = retriever.cachedConfig
+    private var host = config.getString("client.host")
+    private var port = config.getInteger("client.port")
+    private val clientOptions = WebClientOptions().apply {
+        maxPoolSize = 2000
+    }
+    private val client: WebClient = WebClient.create(vertx,clientOptions)
     override fun finalize(): Router = router.apply {
-        get("/timeout").produces(ContentTypes.json).handler(timeout)
+        route().handler(BodyHandler.create())
+        route("/timeout/*").handler(TimeoutHandler.create(5000))
+        route("/timeout/*").handler(ResponseTimeHandler.create())
+        get("/timeout/").produces(ContentTypes.json).handler(timeoutWithTime)
         get("/timeout/:time").produces(ContentTypes.json).handler(timeoutWithTime)
     }
 
-    private val timeout: (RoutingContext) -> Unit = {
-        client.get(config.getInteger("client.port"), config.getString("client.host"), "/client/150")
-            .`as`(BodyCodec.string())
-            .send { res ->
-                if (res.succeeded()) it.response().apply {
-                    println("client port: ${config.getInteger("client.port")}")
-                    println("client port:")
-                    putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
-                    end(
-                        json {
-                            obj("message" to "Hello, ${res.result().body()}!")
-                        }.encode()
-                    )
-                }
-                else it.response().setStatusCode(400).end()
-            }
-    }
     private val timeoutWithTime: (RoutingContext) -> Unit = { context ->
-        val time = context.request().getParam("time")
+        val time = context.request().getParam("time") ?: "150"
         client.get(config.getInteger("port"), config.getString("host"), "/client/$time").`as`(BodyCodec.string())
             .send { res ->
                 if (res.succeeded()) {
                     val message = when (res.result().getHeader(HttpHeaders.CONTENT_TYPE.toString())) {
-                        ContentTypes.plainText -> "Hello, ${res.result().bodyAsString()}!"
-                        ContentTypes.json -> res.result().bodyAsJsonObject().encodePrettily()
-                        else -> "Hello, ${res.result().body()}!"
+                        ContentTypes.plainText -> json { obj("message" to "Hello, ${res.result().body()}!") }
+                        ContentTypes.json -> res.result().bodyAsJsonObject()
+                        else -> json { obj("message" to "Hello, ${res.result().body()}!") }
                     }
-                    context.response().end(message)
+                    context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
+                        .setStatusCode(200)
+                        .end(message.toBuffer())
                 } else {
-                    context.response().setStatusCode(500).end(res.cause().message)
+                    context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
+                        .setStatusCode(500).end(res.cause().message)
                 }
             }
     }
 
-    private fun getAppConfig() {
-        retriever.getConfig {
-            config = it.result()
-        }
+    fun listenForConfig(): Unit = retriever.listen {
+        config = it.newConfiguration
+        host = config.getString("client.host")
+        port = config.getInteger("client.port")
     }
-
-    fun listenForConfig(): Unit = retriever.listen { config = it.newConfiguration }
 }

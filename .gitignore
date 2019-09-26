@@ -58,8 +58,8 @@ hs_err_pid*
 
 **/*.iml
 **/*.idea
-.classpath
-.project
-.settings
+**/*.classpath
+**/*.project
+**/*.settings
 **/target
-.vscode
+**/*.vscode

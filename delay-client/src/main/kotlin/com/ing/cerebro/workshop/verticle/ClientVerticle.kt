@@ -8,11 +8,13 @@ import io.vertx.config.ConfigStoreOptions
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Promise
 import io.vertx.core.http.HttpServer
+import io.vertx.core.impl.logging.LoggerFactory
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import java.util.*
 
 class ClientVerticle : AbstractVerticle() {
+    private val logger = LoggerFactory.getLogger(this::class.java)
     override fun start(startPromise: Promise<Void>) {
         val retriever: ConfigRetriever = ConfigRetriever.create(vertx, RetrieverConfig.options)
         retriever.getConfig {
@@ -23,7 +25,7 @@ class ClientVerticle : AbstractVerticle() {
             ClientService(router, vertx).finalize()
             server.requestHandler(router)
             server.listen(port)
-            println("Server started on port $port")
+            logger.info("Server started on port $port")
             startPromise.complete()
         }
     }

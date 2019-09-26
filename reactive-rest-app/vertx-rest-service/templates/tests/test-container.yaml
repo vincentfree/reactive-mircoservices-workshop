@@ -18,4 +18,9 @@ spec:
         - name: url
           value: '{{ include "vertx-rest-service.fullname" . }}:{{ .Values.service.port }}'
       command: ['bash']
+      args:
+        - '--latency'
+        - '-t 1'
+        - '-c 25'
+        - http://$url
   restartPolicy: Never
