@@ -24,6 +24,10 @@ stages:
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
               goals: '-pl com.ing.cerebro.workshop:reactive-rest-app -am package'
               #goals: 'package'
+          - publish: $(System.DefaultWorkingDirectory)/reactive-rest-app/target
+            artifact: vertx-rest-service
+#          - publish: $(System.DefaultWorkingDirectory)/reactive-rest-app/target
+#            artifact: dependency
   - stage: Containers
     jobs:
       - job: login
@@ -51,6 +55,9 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
+          - download: current
+            artifact: vertx-rest-service
+          - bash: mv vertx-rest-service/target reactive-rest-app/
           - task: Bash@3
             inputs:
               targetType: 'inline'
