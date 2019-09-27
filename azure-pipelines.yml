@@ -45,7 +45,7 @@ stages:
         steps:
           - download: current
             artifact: vertx-rest-service
-          - bash: mv vertx-rest-service/target reactive-rest-app/
+          - bash: mv $(Pipeline.Workspace)/vertx-rest-service/target reactive-rest-app/
           - task: Docker@2
             inputs:
               containerRegistry: 'cerebro-reg'
@@ -60,7 +60,7 @@ stages:
         steps:
           - download: current
             artifact: vertx-rest-service
-          - bash: mv vertx-rest-service/target reactive-rest-app/
+          - bash: mv $(Pipeline.Workspace)/vertx-rest-service/target reactive-rest-app/
           - task: Bash@3
             inputs:
               targetType: 'inline'
