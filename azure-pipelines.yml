@@ -46,7 +46,8 @@ stages:
           - download: current
             artifact: vertx-rest-service
           - bash: ls -altr
-          - bash: mkdir $(Pipeline.Workspace)/reactive-rest-app/target/
+          - bash: ls -altr reactive-rest-app
+          - bash: mkdir reactive-rest-app/target
           - bash: cp $(Pipeline.Workspace)/vertx-rest-service/ reactive-rest-app/target/
 #          - bash: mv $(Pipeline.Workspace)/vertx-rest-service/target reactive-rest-app/
           - task: Docker@2
