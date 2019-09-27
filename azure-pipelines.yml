@@ -43,6 +43,9 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
+          - download: current
+            artifact: vertx-rest-service
+          - bash: mv vertx-rest-service/target reactive-rest-app/
           - task: Docker@2
             inputs:
               containerRegistry: 'cerebro-reg'
