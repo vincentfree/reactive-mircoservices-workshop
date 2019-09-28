@@ -79,7 +79,7 @@ stages:
               workingDirectory: 'reactive-rest-app'
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: '$(Pipeline.Workspace)'
+              targetPath: '$(System.DefaultWorkingDirectory)/reactive-rest-app/target/vertx-rest-service'
               artifact: 'helm-vertx-rest-service'
       - job: KubeDeploy
         dependsOn: HelmDeployVertxREST
