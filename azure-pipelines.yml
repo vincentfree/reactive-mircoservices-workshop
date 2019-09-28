@@ -54,10 +54,12 @@ stages:
           - task: Docker@2
             inputs:
               containerRegistry: 'cerebro-reg'
-              repository: 'cerebro'
+              repository: 'vertx-rest-service'
               command: 'buildAndPush'
               Dockerfile: 'reactive-rest-app/Dockerfile'
-              buildContext: '**'
+              tags: |
+                $(Build.BuildId)
+                latest
       - job: HelmDeployVertxREST
         dependsOn: BuildVertxREST
         pool:
@@ -90,6 +92,8 @@ stages:
             inputs:
               buildType: 'current'
               targetPath: 'reactive-rest-app/target/vertx-rest-service/'
+          - bash: ls -altr reactive-rest-app/target
+          - bash: ls -altr reactive-rest-app/target/vertx-rest-service
           - task: Kubernetes@1
             inputs:
               connectionType: 'Kubernetes Service Connection'
