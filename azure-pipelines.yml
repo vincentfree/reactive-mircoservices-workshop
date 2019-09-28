@@ -89,8 +89,8 @@ stages:
           - task: DownloadPipelineArtifact@2
             inputs:
               buildType: 'current'
-              itemPattern: '**/vertx-rest-service'
-              targetPath: 'reactive-rest-app/target'
+              itemPattern: '**/templates'
+              targetPath: 'reactive-rest-app/target/vertx-rest-service/'
           - task: Kubernetes@1
             inputs:
               connectionType: 'Kubernetes Service Connection'
