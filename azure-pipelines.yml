@@ -52,10 +52,6 @@ stages:
               Contents: '**'
               TargetFolder: 'reactive-rest-app/target'
               OverWrite: true
-          - bash: ls -altr
-          - bash: ls -altr reactive-rest-app/target
-#          - bash: cp $(Pipeline.Workspace)/vertx-rest-service/dependency reactive-rest-app/target/dependency
-#          - bash: cp $(Pipeline.Workspace)/vertx-rest-service/reactive-rest-app-*.jar reactive-rest-app/target/
           - task: Docker@2
             inputs:
               containerRegistry: 'cerebro-reg'
@@ -76,11 +72,16 @@ stages:
               Contents: '**'
               TargetFolder: 'reactive-rest-app/target'
               OverWrite: true
-#          - bash: mv $(Pipeline.Workspace)/vertx-rest-service/vertx-rest-service reactive-rest-app/target/vertx-rest-service
+          - bash: ls -altr reactive-rest-app/target
           - task: Bash@3
             inputs:
-              targetType: 'inline'
-              script: 'helm template --name test-$(Build.BuildId) --output-dir target vertx-rest-service'
+              filePath: 'run-helm.sh'
+              arguments: 'test-run'
+              workingDirectory: 'reactive-rest-app'
+          # - task: Bash@3
+          #   inputs:
+          #     targetType: 'inline'
+          #     script: 'helm template --name test-$(Build.BuildId) --output-dir target vertx-rest-service'
               #script: 'helm template --name test-${Build.BuildId} --output-dir target vertx-rest-service'
       - job: KubeDeploy
         dependsOn: HelmDeployVertxREST
