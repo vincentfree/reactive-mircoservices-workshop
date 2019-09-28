@@ -75,7 +75,7 @@ stages:
           - bash: ls -altr reactive-rest-app/target
           - task: Bash@3
             inputs:
-              filePath: 'run-helm.sh'
+              filePath: 'reactive-rest-app/run-helm.sh'
               arguments: 'test-run'
               workingDirectory: 'reactive-rest-app'
           # - task: Bash@3
