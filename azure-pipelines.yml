@@ -88,10 +88,18 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          - task: DownloadPipelineArtifact@2
+          - download: current
+            artifact: helm-vertx-rest-service
+          - task: CopyFiles@2
             inputs:
-              buildType: 'current'
-              targetPath: 'reactive-rest-app/target/vertx-rest-service/'
+              SourceFolder: '$(Pipeline.Workspace)/helm-vertx-rest-service'
+              Contents: '**'
+              TargetFolder: 'reactive-rest-app/target/vertx-rest-service/'
+              OverWrite: true
+          # - task: DownloadPipelineArtifact@2
+          #   inputs:
+          #     buildType: 'current'
+          #     targetPath: 'reactive-rest-app/target/vertx-rest-service/'
           - bash: ls -altr reactive-rest-app/target
           - bash: ls -altr reactive-rest-app/target/vertx-rest-service
           - task: Kubernetes@1
