@@ -43,7 +43,6 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
-          
           - download: current
             artifact: vertx-rest-service
           - task: CopyFiles@2
@@ -78,16 +77,20 @@ stages:
               filePath: 'reactive-rest-app/run-helm.sh'
               arguments: 'test-run'
               workingDirectory: 'reactive-rest-app'
-          # - task: Bash@3
-          #   inputs:
-          #     targetType: 'inline'
-          #     script: 'helm template --name test-$(Build.BuildId) --output-dir target vertx-rest-service'
-              #script: 'helm template --name test-${Build.BuildId} --output-dir target vertx-rest-service'
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Pipeline.Workspace)'
+              artifact: 'helm-vertx-rest-service'
       - job: KubeDeploy
         dependsOn: HelmDeployVertxREST
         pool:
           vmImage: 'ubuntu-latest'
         steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              buildType: 'current'
+              itemPattern: '**/vertx-rest-service'
+              targetPath: 'reactive-rest-app/target'
           - task: Kubernetes@1
             inputs:
               connectionType: 'Kubernetes Service Connection'
