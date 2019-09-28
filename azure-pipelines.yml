@@ -43,12 +43,19 @@ stages:
         pool:
           vmImage: 'ubuntu-latest'
         steps:
+          
           - download: current
             artifact: vertx-rest-service
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(Pipeline.Workspace)/vertx-rest-service'
+              Contents: '**'
+              TargetFolder: 'reactive-rest-app/target'
+              OverWrite: true
           - bash: ls -altr
           - bash: ls -altr reactive-rest-app/target
-          - bash: cp $(Pipeline.Workspace)/vertx-rest-service/dependency reactive-rest-app/target/dependency
-          - bash: cp $(Pipeline.Workspace)/vertx-rest-service/reactive-rest-app-*.jar reactive-rest-app/target/
+#          - bash: cp $(Pipeline.Workspace)/vertx-rest-service/dependency reactive-rest-app/target/dependency
+#          - bash: cp $(Pipeline.Workspace)/vertx-rest-service/reactive-rest-app-*.jar reactive-rest-app/target/
           - task: Docker@2
             inputs:
               containerRegistry: 'cerebro-reg'
@@ -63,7 +70,13 @@ stages:
         steps:
           - download: current
             artifact: vertx-rest-service
-          - bash: mv $(Pipeline.Workspace)/vertx-rest-service/vertx-rest-service reactive-rest-app/target/vertx-rest-service
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(Pipeline.Workspace)/vertx-rest-service'
+              Contents: '**'
+              TargetFolder: 'reactive-rest-app/target'
+              OverWrite: true
+#          - bash: mv $(Pipeline.Workspace)/vertx-rest-service/vertx-rest-service reactive-rest-app/target/vertx-rest-service
           - task: Bash@3
             inputs:
               targetType: 'inline'
