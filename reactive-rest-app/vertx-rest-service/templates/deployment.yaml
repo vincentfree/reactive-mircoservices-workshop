@@ -30,6 +30,21 @@ spec:
               value: {{.Release.Name}}
             - name: configName
               value: {{ include "vertx-rest-service.fullname" . }}-config
+            - name: server.port
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "vertx-rest-service.fullname" . }}-config
+                  key: server.port
+            - name: client.host
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "vertx-rest-service.fullname" . }}-config
+                  key: client.host
+            - name: client.port
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "vertx-rest-service.fullname" . }}-config
+                  key: client.port
           ports:
             - name: http
               containerPort: {{.Values.image.port}}

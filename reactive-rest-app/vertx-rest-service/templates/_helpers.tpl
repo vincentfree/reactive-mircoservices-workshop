@@ -47,3 +47,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 configMap
 */}}
+{{- define "vertx-rest-service.config" -}}
+server.port: {{quote .Values.image.port }}
+client.host: {{ .Release.Name }}-{{ .Values.config.client_host }}
+client.port: {{quote .Values.config.client_port}}
+{{- end -}}

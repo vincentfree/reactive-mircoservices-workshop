@@ -12,7 +12,12 @@ steps:
       filePath: '$(app_folder)/run-helm.sh'
       arguments: 'test-run'
       workingDirectory: '$(app_folder)'
-  - task: PublishPipelineArtifact@1
+  - task: PublishBuildArtifacts@1
     inputs:
-      targetPath: '$(System.DefaultWorkingDirectory)/$(app_folder)/target/$(app_service_name)'
-      artifact: 'helm-$(app_service_name)'
+      PathtoPublish: '$(System.DefaultWorkingDirectory)/$(app_folder)/target/$(app_service_name)'
+      ArtifactName: 'helm-$(app_service_name)'
+      publishLocation: 'Container'
+#  - task: PublishPipelineArtifact@1
+#    inputs:
+#      targetPath: '$(System.DefaultWorkingDirectory)/$(app_folder)/target/$(app_service_name)'
+#      artifact: 'helm-$(app_service_name)'

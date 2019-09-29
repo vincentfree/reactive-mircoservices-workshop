@@ -6,6 +6,4 @@ metadata:
   labels:
 {{ include "vertx-rest-service.labels" . | indent 4 }}
 data:
-  server.port: '{{ .Values.image.port }}'
-  client.host: '{{.Release.Name}}-vertx-delay-service'
-  client.port: '80'
+{{ include "vertx-rest-service.config" . | indent 2 }}

@@ -6,4 +6,4 @@ metadata:
   labels:
 {{ include "vertx-delay-service.labels" . | indent 4 }}
 data:
-  server.port: '{{ .Values.image.port }}'
+{{ include "vertx-delay-service.config" . | indent 2 }}
