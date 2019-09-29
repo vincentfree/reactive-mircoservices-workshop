@@ -27,6 +27,7 @@ stages:
           - publish: $(System.DefaultWorkingDirectory)
             artifact: maven
   - stage: Containers
+    dependsOn: Build
     jobs:
       - job: login
         pool:
@@ -64,6 +65,7 @@ stages:
 #        steps:
 #        - template: templates/build-image.yml
   - stage: Helm
+    dependsOn: Build
     jobs:
       - job: Template
         strategy:
