@@ -10,7 +10,7 @@ steps:
   - task: Bash@3
     inputs:
       filePath: '$(app_folder)/run-helm.sh'
-      arguments: 'test-run'
+      arguments: 'test-run $(Build.BuildId)'
       workingDirectory: '$(app_folder)'
   - task: PublishBuildArtifacts@1
     inputs:

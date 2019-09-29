@@ -47,6 +47,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 configMap
 */}}
-{{-define "vertx-delay-service.config" -}}
+{{- define "vertx-delay-service.config" -}}
 server.port: {{quote .Values.image.port}}
 {{- end -}}
