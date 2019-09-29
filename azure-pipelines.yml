@@ -22,12 +22,10 @@ stages:
               jdkArchitectureOption: 'x64'
               publishJUnitResults: true
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
-              goals: '-pl com.ing.cerebro.workshop:reactive-rest-app -am package'
+              goals: '-pl com.ing.cerebro.workshop:reactive-rest-app -pl com.ing.cerebro.workshop:delay-client -am package'
               #goals: 'package'
-          - publish: $(System.DefaultWorkingDirectory)/reactive-rest-app/target
-            artifact: vertx-rest-service
-#          - publish: $(System.DefaultWorkingDirectory)/reactive-rest-app/target
-#            artifact: dependency
+          - publish: $(System.DefaultWorkingDirectory)
+            artifact: maven
   - stage: Containers
     jobs:
       - job: login
@@ -42,85 +40,17 @@ stages:
         dependsOn: login
         pool:
           vmImage: 'ubuntu-latest'
+        variables:
+          app_folder: reactive-rest-app
+          app_service_name: vertx-rest-service
         steps:
-          - download: current
-            artifact: vertx-rest-service
-          - task: CopyFiles@2
-            inputs:
-              SourceFolder: '$(Pipeline.Workspace)/vertx-rest-service'
-              Contents: '**'
-              TargetFolder: 'reactive-rest-app/target'
-              OverWrite: true
-          - task: Docker@2
-            inputs:
-              containerRegistry: 'cerebro-reg'
-              repository: 'vertx-rest-service'
-              command: 'buildAndPush'
-              Dockerfile: 'reactive-rest-app/Dockerfile'
-              tags: |
-                $(Build.BuildId)
-                latest
-      - job: HelmDeployVertxREST
-        dependsOn: BuildVertxREST
+        - template: templates/build-image-and-helm.yml
+      - job: BuildVertxDelayClient
+        dependsOn: login
         pool:
           vmImage: 'ubuntu-latest'
+        variables:
+          app_folder: delay-client
+          app_service_name: vertx-delay-service
         steps:
-          - download: current
-            artifact: vertx-rest-service
-          - task: CopyFiles@2
-            inputs:
-              SourceFolder: '$(Pipeline.Workspace)/vertx-rest-service'
-              Contents: '**'
-              TargetFolder: 'reactive-rest-app/target'
-              OverWrite: true
-          - bash: ls -altr reactive-rest-app/target
-          - task: Bash@3
-            inputs:
-              filePath: 'reactive-rest-app/run-helm.sh'
-              arguments: 'test-run'
-              workingDirectory: 'reactive-rest-app'
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: '$(System.DefaultWorkingDirectory)/reactive-rest-app/target/vertx-rest-service'
-              artifact: 'helm-vertx-rest-service'
-      - job: KubeDeploy
-        dependsOn: HelmDeployVertxREST
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - download: current
-            artifact: helm-vertx-rest-service
-          - task: CopyFiles@2
-            inputs:
-              SourceFolder: '$(Pipeline.Workspace)/helm-vertx-rest-service'
-              Contents: '**'
-              TargetFolder: 'reactive-rest-app/target/vertx-rest-service/'
-              OverWrite: true
-          # - task: DownloadPipelineArtifact@2
-          #   inputs:
-          #     buildType: 'current'
-          #     targetPath: 'reactive-rest-app/target/vertx-rest-service/'
-          - bash: ls -altr reactive-rest-app/target
-          - bash: ls -altr reactive-rest-app/target/vertx-rest-service
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceEndpoint: 'AKS k8s-geg-dev-k8s-geg-dev-reactive-workshop-1568230047818'
-              namespace: 'reactive-workshop'
-              command: 'apply'
-              useConfigurationFile: true
-              configuration: 'reactive-rest-app/target/vertx-rest-service/templates/deployment.yaml'
-              secretType: 'dockerRegistry'
-              containerRegistryType: 'Container Registry'
-              dockerRegistryEndpoint: 'cerebro-reg'
-          - task: Kubernetes@1
-            inputs:
-              connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceEndpoint: 'AKS k8s-geg-dev-k8s-geg-dev-reactive-workshop-1568230047818'
-              namespace: 'reactive-workshop'
-              command: 'apply'
-              useConfigurationFile: true
-              configuration: 'reactive-rest-app/target/vertx-rest-service/templates/service.yaml'
-              secretType: 'dockerRegistry'
-              containerRegistryType: 'Container Registry'
-              dockerRegistryEndpoint: 'cerebro-reg'
+        - template: templates/build-image-and-helm.yml
