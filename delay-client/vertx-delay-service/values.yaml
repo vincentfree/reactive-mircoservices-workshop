@@ -1,4 +1,4 @@
-# Default values for vertx-rest-service.
+# Default values for vertx-delay-service.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -7,7 +7,7 @@ namespace: reactive-workshop
 replicaCount: 1
 
 image:
-  repository: cerebro.azurecr.io/vertx-client-service
+  repository: cerebro.azurecr.io/vertx-delay-service
   tag: latest
   pullPolicy: IfNotPresent
   port: 8080

@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: {{ .Values.namespace }}
-  name: {{ include "vertx-client-service.fullname" . }}
+  name: {{ include "vertx-delay-service.fullname" . }}
   labels:
-{{ include "vertx-client-service.labels" . | indent 4 }}
+{{ include "vertx-delay-service.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "vertx-client-service.name" . }}
+      app.kubernetes.io/name: {{ include "vertx-delay-service.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "vertx-client-service.name" . }}
+        app.kubernetes.io/name: {{ include "vertx-delay-service.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
     {{- with .Values.imagePullSecrets }}
@@ -29,7 +29,7 @@ spec:
             - name: release
               value: {{.Release.Name}}
             - name: configName
-              value: {{ include "vertx-client-service.fullname" . }}-config
+              value: {{ include "vertx-delay-service.fullname" . }}-config
           ports:
             - name: http
               containerPort: {{.Values.image.port}}

@@ -2,9 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   namespace: {{ .Values.namespace }}
-  name: {{ include "vertx-client-service.fullname" . }}
+  name: {{ include "vertx-delay-service.fullname" . }}
   labels:
-{{ include "vertx-client-service.labels" . | indent 4 }}
+{{ include "vertx-delay-service.labels" . | indent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -13,5 +13,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app.kubernetes.io/name: {{ include "vertx-client-service.name" . }}
+    app.kubernetes.io/name: {{ include "vertx-delay-service.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

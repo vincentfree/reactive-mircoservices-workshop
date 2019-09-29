@@ -1,12 +1,12 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "vertx-client-service.fullname" . -}}
+{{- $fullName := include "vertx-delay-service.fullname" . -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   namespace: {{ .Values.namespace }}
   name: {{ $fullName }}
   labels:
-{{ include "vertx-client-service.labels" . | indent 4 }}
+{{ include "vertx-delay-service.labels" . | indent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
