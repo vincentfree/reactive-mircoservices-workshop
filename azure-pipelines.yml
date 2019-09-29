@@ -36,39 +36,54 @@ stages:
             inputs:
               containerRegistry: 'cerebro-reg'
               command: 'login'
-      - job: BuildVertxREST
+      - job: ContainerBuild
         dependsOn: login
+        strategy:
+          maxParallel: 2
+          matrix:
+            Vertx_REST:
+              app_folder: reactive-rest-app
+              app_service_name: vertx-rest-service
+            Vertx_Delay_Client:
+              app_folder: delay-client
+              app_service_name: vertx-delay-service
         pool:
           vmImage: 'ubuntu-latest'
-        variables:
-          app_folder: reactive-rest-app
-          app_service_name: vertx-rest-service
+#        variables:
+#          app_folder: reactive-rest-app
+#          app_service_name: vertx-rest-service
         steps:
         - template: templates/build-image.yml
-      - job: BuildVertxDelayClient
-        dependsOn: login
-        pool:
-          vmImage: 'ubuntu-latest'
-        variables:
-          app_folder: delay-client
-          app_service_name: vertx-delay-service
-        steps:
-        - template: templates/build-image.yml
+#      - job: BuildVertxDelayClient
+#        dependsOn: login
+#        pool:
+#          vmImage: 'ubuntu-latest'
+#        variables:
+#          app_folder: delay-client
+#          app_service_name: vertx-delay-service
+#        steps:
+#        - template: templates/build-image.yml
   - stage: Helm
     jobs:
-      - job: VertxREST
+      - job: Template
+        strategy:
+          maxParallel: 2
+          matrix:
+            Vertx_REST:
+              app_folder: reactive-rest-app
+              app_service_name: vertx-rest-service
+            Vertx_Delay_Client:
+              app_folder: delay-client
+              app_service_name: vertx-delay-service
         pool:
           vmImage: 'ubuntu-latest'
-        variables:
-          app_folder: reactive-rest-app
-          app_service_name: vertx-rest-service
         steps:
           - template: templates/create-helm-files.yml
-      - job: VertxDelayClient
-        pool:
-          vmImage: 'ubuntu-latest'
-        variables:
-          app_folder: delay-client
-          app_service_name: vertx-delay-service
-        steps:
-          - template: templates/create-helm-files.yml
+#      - job: VertxDelayClient
+#        pool:
+#          vmImage: 'ubuntu-latest'
+#        variables:
+#          app_folder: delay-client
+#          app_service_name: vertx-delay-service
+#        steps:
+  #          - template: templates/create-helm-files.yml
