@@ -27,6 +27,7 @@ object RetrieverConfig {
         addStore(
             ConfigStoreOptions().apply {
                 type = "env"
+                isOptional = true
             }
         )
         /*addStore(
