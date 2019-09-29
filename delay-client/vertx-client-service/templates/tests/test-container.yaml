@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: "{{ include "vertx-client-service.fullname" . }}-test-container"
+  labels:
+{{ include "vertx-client-service.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: test-container
+      image: cerebro.azurecr.io/test-container:latest
+      imagePullPolicy: IfNotPresent
+      tty: true
+      stdin: true
+      env:
+        - name: url
+          value: '{{ include "vertx-client-service.fullname" . }}:{{ .Values.service.port }}'
+      command: ['bash']
+  restartPolicy: Never

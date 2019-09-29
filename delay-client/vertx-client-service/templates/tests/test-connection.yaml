@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: "{{ include "vertx-client-service.fullname" . }}-test-connection"
+  labels:
+{{ include "vertx-client-service.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['{{ include "vertx-client-service.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
