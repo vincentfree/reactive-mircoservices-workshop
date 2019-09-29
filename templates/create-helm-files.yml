@@ -1,0 +1,18 @@
+steps:
+  - download: current
+    artifact: maven
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Pipeline.Workspace)/maven/$(app_folder)/target'
+      Contents: '**'
+      TargetFolder: '$(app_folder)/target'
+      OverWrite: true
+  - task: Bash@3
+    inputs:
+      filePath: '$(app_folder)/run-helm.sh'
+      arguments: 'test-run'
+      workingDirectory: '$(app_folder)'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(System.DefaultWorkingDirectory)/$(app_folder)/target/$(app_service_name)'
+      artifact: 'helm-$(app_service_name)'

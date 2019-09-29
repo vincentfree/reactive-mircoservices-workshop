@@ -16,12 +16,3 @@ steps:
       tags: |
         $(Build.BuildId)
         latest
-  - task: Bash@3
-    inputs:
-      filePath: '$(app_folder)/run-helm.sh'
-      arguments: 'test-run'
-      workingDirectory: '$(app_folder)'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: '$(System.DefaultWorkingDirectory)/$(app_folder)/target/$(app_service_name)'
-      artifact: 'helm-$(app_service_name)'

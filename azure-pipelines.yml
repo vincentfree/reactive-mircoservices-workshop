@@ -44,7 +44,7 @@ stages:
           app_folder: reactive-rest-app
           app_service_name: vertx-rest-service
         steps:
-        - template: templates/build-image-and-helm.yml
+        - template: templates/build-image.yml
       - job: BuildVertxDelayClient
         dependsOn: login
         pool:
@@ -53,4 +53,22 @@ stages:
           app_folder: delay-client
           app_service_name: vertx-delay-service
         steps:
-        - template: templates/build-image-and-helm.yml
+        - template: templates/build-image.yml
+  - stage: Helm
+    jobs:
+      - job: VertxREST
+        pool:
+          vmImage: 'ubuntu-latest'
+        variables:
+          app_folder: reactive-rest-app
+          app_service_name: vertx-rest-service
+        steps:
+          - template: templates/create-helm-files.yml
+      - job: VertxDelayClient
+        pool:
+          vmImage: 'ubuntu-latest'
+        variables:
+          app_folder: delay-client
+          app_service_name: vertx-delay-service
+        steps:
+          - template: templates/create-helm-files.yml
