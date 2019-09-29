@@ -26,6 +26,7 @@ class ClientVerticle : AbstractVerticle() {
             server.requestHandler(router)
             server.listen(port)
             logger.info("Server started on port $port")
+            logger.warn("config: ${it.result().encodePrettily()}")
             startPromise.complete()
         }
     }
