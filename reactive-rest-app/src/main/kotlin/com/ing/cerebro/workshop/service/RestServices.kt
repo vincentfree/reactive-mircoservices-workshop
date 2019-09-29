@@ -57,7 +57,7 @@ class TimeoutService(private val router: Router, vertx: Vertx) : RouterService {
 
     private val timeoutWithTime: (RoutingContext) -> Unit = { context ->
         val time = context.request().getParam("time") ?: "150"
-        client.get(config.getInteger("port"), config.getString("host"), "/client/$time").`as`(BodyCodec.string())
+        client.get(port, host, "/client/$time").`as`(BodyCodec.string())
             .send { res ->
                 if (res.succeeded()) {
                     val message = when (res.result().getHeader(HttpHeaders.CONTENT_TYPE.toString())) {
