@@ -9,9 +9,5 @@ import io.vertx.kotlin.core.json.obj
 
 fun main() {
     val vertx = Vertx.vertx()
-//    val options = DeploymentOptions().config = json { obj(""to"") }
-    val options = DeploymentOptions().apply {
-        config = JsonObject().put("port", 9080).put("host","localhost")
-    }
-    vertx.deployVerticle(RestVerticle(),options)
+    vertx.deployVerticle(RestVerticle())
 }

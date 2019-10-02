@@ -17,7 +17,7 @@ spec:
       env:
         - name: url
           value: '{{ include "vertx-rest-service.fullname" . }}:{{ .Values.service.port }}'
-      command: ['bash']
+      command: ['wrk']
       args:
         - '--latency'
         - '-t 1'

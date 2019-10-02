@@ -28,8 +28,8 @@ class RestVerticle : AbstractVerticle() {
             }
             server.requestHandler(router)
             val serverFut = server.listen(port)
-            serverFut.setHandler { serv ->
-                if(serv.succeeded()) {
+            serverFut.setHandler { s ->
+                if(s.succeeded()) {
                     startPromise.complete()
                     logger.info("Server started on port $port")
                 } else {
