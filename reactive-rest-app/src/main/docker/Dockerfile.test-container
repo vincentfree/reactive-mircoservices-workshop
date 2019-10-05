@@ -1,6 +1,11 @@
-FROM ubuntu
+FROM ubuntu as build
 RUN apt-get update && apt-get install -y httpie build-essential libssl-dev git && rm -rf /var/lib/apt/lists/* \
 && git clone https://github.com/wg/wrk.git wrk \
 && cd wrk && make \
 && cp wrk /usr/local/bin
+CMD bash
+
+FROM ubuntu
+RUN apt-get update && apt-get install -y httpie && rm -rf /var/lib/apt/lists/*
+COPY --from=build /usr/local/bin/wrk /usr/local/bin/wrk
 CMD bash

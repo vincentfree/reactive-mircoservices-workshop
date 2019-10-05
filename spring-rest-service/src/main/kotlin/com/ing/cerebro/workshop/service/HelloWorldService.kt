@@ -1,16 +1,15 @@
 package com.ing.cerebro.workshop.service
 
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.stereotype.Controller
+import org.springframework.stereotype.Service
+import org.springframework.web.bind.annotation.*
 
+@RequestMapping("hello")
 @RestController
 class HelloWorldService {
-    @GetMapping(name = "/hello", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ResponseBody
-    fun helloWorld(@RequestParam(name = "name", required = false, defaultValue = "world") name: String): String {
-        return "{\"message\": \"Hello, $name!\"}"
+    @RequestMapping(value = ["","/", "/{name}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun helloWorld(@PathVariable(name = "name", required = false) name: String?): String {
+        return "{\"message\": \"Hello, ${name ?: "World"}!\"}"
     }
 }
