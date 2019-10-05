@@ -10,23 +10,30 @@ stages:
   - stage: Build
     jobs:
       - job: Maven
+        strategy:
+          maxParallel: 2
+          matrix:
+            Vertx:
+              location: 'pom.xml'
+              goal: '-pl com.ing.cerebro.workshop:reactive-rest-app
+              -pl com.ing.cerebro.workshop:delay-client
+              -am package'
+            Spring:
+              location: 'spring-rest-service/pom.xml'
+              goal: 'package'
         pool:
           vmImage: 'ubuntu-latest'
         steps:
           - task: Maven@3
             inputs:
-              mavenPomFile: 'pom.xml'
+              mavenPomFile: '$(location)'
               mavenOptions: '-Xmx3072m'
               javaHomeOption: 'JDKVersion'
               jdkVersionOption: '1.8'
               jdkArchitectureOption: 'x64'
               publishJUnitResults: true
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
-              goals: '-pl com.ing.cerebro.workshop:reactive-rest-app
-               -pl com.ing.cerebro.workshop:delay-client
-               -pl com.ing.cerebro.workshop:spring-rest-service
-               -am package'
-              #goals: 'package'
+              goals: '$(goal)'
           - publish: $(System.DefaultWorkingDirectory)
             artifact: maven
   - stage: Containers
