@@ -35,7 +35,7 @@ stages:
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
               goals: '$(goal)'
           - publish: $(System.DefaultWorkingDirectory)
-            artifact: maven
+            artifact: $(System.JobName)
   - stage: Containers
     dependsOn: Build
     jobs:

@@ -1,9 +1,9 @@
 steps:
   - download: current
-    artifact: maven
+    # artifact: maven
   - task: CopyFiles@2
     inputs:
-      SourceFolder: '$(Pipeline.Workspace)/maven/$(app_folder)/target'
+      SourceFolder: '$(Pipeline.Workspace)/**/$(app_folder)/target'
       Contents: '**'
       TargetFolder: '$(app_folder)/target'
       OverWrite: true
