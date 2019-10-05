@@ -22,7 +22,10 @@ stages:
               jdkArchitectureOption: 'x64'
               publishJUnitResults: true
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
-              goals: '-pl com.ing.cerebro.workshop:reactive-rest-app -pl com.ing.cerebro.workshop:delay-client -am package'
+              goals: '-pl com.ing.cerebro.workshop:reactive-rest-app
+               -pl com.ing.cerebro.workshop:delay-client
+               -pl com.ing.cerebro.workshop:spring-rest-service
+               -am package'
               #goals: 'package'
           - publish: $(System.DefaultWorkingDirectory)
             artifact: maven
