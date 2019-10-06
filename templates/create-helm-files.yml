@@ -1,7 +1,6 @@
 steps:
   - download: current
-    patterns: $(download_artifact)/**
-    # artifact: maven
+    artifact: $(download_artifact)
   - task: CopyFiles@2
     inputs:
       SourceFolder: '$(Pipeline.Workspace)/**/$(app_folder)/target'
