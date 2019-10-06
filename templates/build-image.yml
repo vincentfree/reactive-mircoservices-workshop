@@ -3,7 +3,7 @@ steps:
     artifact: $(download_artifact)
   - task: CopyFiles@2
     inputs:
-      SourceFolder: '$(Pipeline.Workspace)/**/$(app_folder)/target'
+      SourceFolder: '$(Pipeline.Workspace)/$(download_artifact)/$(app_folder)/target'
       Contents: '**'
       TargetFolder: '$(app_folder)/target'
       OverWrite: true
