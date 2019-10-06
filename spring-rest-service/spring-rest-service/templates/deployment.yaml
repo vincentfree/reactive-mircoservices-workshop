@@ -21,10 +21,21 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ include "spring-rest-service.fullname" . }}
+          items:
+          - key: application.properties
+            path: application.properties
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - name: config-volume
+            mountPath: /src/app/resources
+            readOnly: true
           envFrom:
             - configMapRef:
                 name: {{ include "spring-rest-service.fullname" . }}

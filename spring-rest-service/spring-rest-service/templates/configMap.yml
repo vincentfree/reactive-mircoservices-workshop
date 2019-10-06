@@ -7,3 +7,5 @@ metadata:
 {{ include "spring-rest-service.labels" . | indent 4 }}
 data:
 {{ include "spring-rest-service.config" . | indent 2 }}
+  application.properties: |-
+{{ include "spring-rest-service.config" . | indent 4 }}
