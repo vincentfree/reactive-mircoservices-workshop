@@ -1,5 +1,6 @@
 steps:
   - download: current
+    patterns: $(download_artifact)/**
     # artifact: maven
   - task: CopyFiles@2
     inputs:

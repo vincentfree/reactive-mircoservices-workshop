@@ -55,12 +55,15 @@ stages:
             Vertx_REST:
               app_folder: reactive-rest-app
               app_service_name: vertx-rest-service
+              download_artifact: Vertx
             Vertx_Delay_Client:
               app_folder: delay-client
               app_service_name: vertx-delay-service
+              download_artifact: Vertx
             Spring_REST:
               app_folder: spring-rest-service
               app_service_name: spring-rest-service
+              download_artifact: Spring
         pool:
           vmImage: 'ubuntu-latest'
         steps:
@@ -75,12 +78,15 @@ stages:
             Vertx_REST:
               app_folder: reactive-rest-app
               app_service_name: vertx-rest-service
+              download_artifact: Vertx
             Vertx_Delay_Client:
               app_folder: delay-client
               app_service_name: vertx-delay-service
+              download_artifact: Vertx
             Spring_REST:
               app_folder: spring-rest-service
               app_service_name: spring-rest-service
+              download_artifact: Spring
         pool:
           vmImage: 'ubuntu-latest'
         steps:
