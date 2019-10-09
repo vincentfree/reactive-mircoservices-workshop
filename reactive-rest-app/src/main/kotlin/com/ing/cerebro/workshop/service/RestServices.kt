@@ -1,7 +1,6 @@
 package com.ing.cerebro.workshop.service
 
 import com.ing.cerebro.workshop.core.ContentTypes
-import com.ing.cerebro.workshop.core.Loggable
 import com.ing.cerebro.workshop.core.RetrieverConfig
 import com.ing.cerebro.workshop.core.RouterService
 import io.vertx.config.ConfigRetriever
@@ -25,10 +24,19 @@ class HelloService(private val router: Router) : RouterService {
     override val logger: Logger = logger()
 
     override fun finalize(): Router = router.apply {
-        get("/hello").produces(ContentTypes.json).handler(helloWorld)
+        get("/hello/").produces(ContentTypes.json).handler(helloWorld)
+        get("/helloworld").produces(ContentTypes.plainText).handler(helloPlainWorld)
         get("/hello/:name").produces(ContentTypes.json).handler(helloInput)
     }
 
+    
+    private val helloPlainWorld: (RoutingContext) -> Unit = { context ->
+        context.response().apply {
+            putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
+            isChunked = false
+            end("Hello world!")
+        }
+    }
     private val helloWorld: (RoutingContext) -> Unit = { context ->
         context.response().apply {
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
