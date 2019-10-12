@@ -21,7 +21,7 @@ import io.vertx.kotlin.core.json.obj
 
 
 class HelloService(private val router: Router) : RouterService {
-    override val logger: Logger = logger()
+//    override val logger: Logger = logger()
 
     override fun finalize(): Router = router.apply {
         get("/hello/").produces(ContentTypes.json).handler(helloWorld)
@@ -51,7 +51,7 @@ class HelloService(private val router: Router) : RouterService {
 }
 
 class TimeoutService(private val router: Router, vertx: Vertx) : RouterService {
-    override val logger: Logger = logger()
+//    override val logger: Logger = logger()
     private val retriever: ConfigRetriever = ConfigRetriever.create(vertx, RetrieverConfig.options)
     private var config: JsonObject = retriever.cachedConfig
     private var host = config.getString("client.host")
@@ -95,7 +95,8 @@ class TimeoutService(private val router: Router, vertx: Vertx) : RouterService {
                 host = config.getString("client.host")
                 port = config.getInteger("client.port")
             }
-            true -> logger.debug("nothing new in config")
+            true -> println("nothing new in config")
+//            true -> logger.debug("nothing new in config")
         }
 
     }

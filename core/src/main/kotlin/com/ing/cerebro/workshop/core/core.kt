@@ -14,7 +14,7 @@ object ContentTypes {
     const val form = "application/x-www-form-urlencoded"
 }
 
-interface RouterService : Loggable {
+interface RouterService {
     fun finalize(): Router
 }
 
