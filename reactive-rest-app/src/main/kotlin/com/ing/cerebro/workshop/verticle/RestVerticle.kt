@@ -9,33 +9,13 @@ import io.vertx.core.Promise
 import io.vertx.core.http.HttpServer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
+import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 class RestVerticle : AbstractVerticle() {
 
     override fun start(startPromise: Promise<Void>) {
-        val port = 8081
-        val server: HttpServer = vertx.createHttpServer()
-        val router: Router = Router.router(vertx)
-        HelloService(router).finalize()
-        /*TimeoutService(router, vertx).apply {
-            listenForConfig()
-            finalize()
-        }*/
-        server.requestHandler(router)
-        val serverFut = server.listen(port)
-        serverFut.setHandler { s ->
-            if (s.succeeded()) {
-                startPromise.complete()
-                println("Server started on port $port")
-//                    logger.info("Server started on port $port")
-            } else {
-                println("failed to start")
-//                    logger.error("failed to start")
-                exitProcess(1)
-            }
-        }
-        /*val retriever: ConfigRetriever = ConfigRetriever.create(vertx, RetrieverConfig.options)
+        val retriever: ConfigRetriever = ConfigRetriever.create(vertx, RetrieverConfig.options)
         retriever.getConfig {
             val config: JsonObject = it.result()
             val port: Int = config.getInteger("server.port", 8080)
@@ -49,16 +29,18 @@ class RestVerticle : AbstractVerticle() {
             server.requestHandler(router)
             val serverFut = server.listen(port)
             serverFut.setHandler { s ->
-                if (s.succeeded()) {
+                if(s.succeeded()) {
                     startPromise.complete()
-                    println("Server started on port $port")
-//                    logger.info("Server started on port $port")
+                    logger.info("Server started on port $port")
                 } else {
-                    println("failed to start")
-//                    logger.error("failed to start")
+                    logger.error("failed to start")
                     exitProcess(1)
                 }
             }
-        }*/
+        }
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(RestVerticle::class.java)
     }
 }
