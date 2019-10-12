@@ -21,6 +21,9 @@ stages:
             Spring:
               location: 'spring-rest-service/pom.xml'
               goal: 'package'
+            Reactive-Spring:
+              location: 'reactive-spring-rest-service/pom.xml'
+              goal: 'package'
         pool:
           vmImage: 'ubuntu-latest'
         steps:
@@ -64,6 +67,10 @@ stages:
               app_folder: spring-rest-service
               app_service_name: spring-rest-service
               download_artifact: Spring
+            Spring_Reactive:
+              app_folder: reactive-spring-rest-service
+              app_service_name: reactive-spring-rest-service
+              download_artifact: Reactive-Spring
         pool:
           vmImage: 'ubuntu-latest'
         steps:
