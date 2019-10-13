@@ -55,3 +55,10 @@ affinity: {}
 config:
   client_host: vertx-delay-service
   client_port: 80
+
+postgres:
+  user: admin
+  pass: c1oudc0w
+  storage: 2Gi
+  port: 5432
+  tag: '12.0'

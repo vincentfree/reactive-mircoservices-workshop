@@ -5,6 +5,7 @@
 
 trigger:
 - master
+- feature*
 
 stages:
   - stage: Build
@@ -21,7 +22,7 @@ stages:
             Spring:
               location: 'spring-rest-service/pom.xml'
               goal: 'package'
-            Reactive-Spring:
+            Reactive_Spring:
               location: 'reactive-spring-rest-service/pom.xml'
               goal: 'package'
         pool:
@@ -67,10 +68,10 @@ stages:
               app_folder: spring-rest-service
               app_service_name: spring-rest-service
               download_artifact: Spring
-            Spring_Reactive:
+            Reactive_Spring:
               app_folder: reactive-spring-rest-service
               app_service_name: reactive-spring-rest-service
-              download_artifact: Reactive-Spring
+              download_artifact: Reactive_Spring
         pool:
           vmImage: 'ubuntu-latest'
         steps:
@@ -94,6 +95,10 @@ stages:
               app_folder: spring-rest-service
               app_service_name: spring-rest-service
               download_artifact: Spring
+            Reactive_Spring:
+              app_folder: reactive-spring-rest-service
+              app_service_name: reactive-spring-rest-service
+              download_artifact: Reactive_Spring
         pool:
           vmImage: 'ubuntu-latest'
         steps:

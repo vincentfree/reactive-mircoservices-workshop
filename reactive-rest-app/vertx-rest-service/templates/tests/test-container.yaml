@@ -22,5 +22,5 @@ spec:
         - '--latency'
         - '-t 1'
         - '-c 25'
-        - http://$url
+        - http://$(url)/hello
   restartPolicy: Never
