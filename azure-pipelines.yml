@@ -12,7 +12,7 @@ stages:
     jobs:
       - job: Maven
         strategy:
-          maxParallel: 2
+          maxParallel: 10
           matrix:
             Vertx:
               location: 'pom.xml'
@@ -54,7 +54,7 @@ stages:
       - job: ContainerBuild
         dependsOn: login
         strategy:
-          maxParallel: 2
+          maxParallel: 10
           matrix:
             Vertx_REST:
               app_folder: reactive-rest-app
@@ -81,7 +81,7 @@ stages:
     jobs:
       - job: Template
         strategy:
-          maxParallel: 2
+          maxParallel: 10
           matrix:
             Vertx_REST:
               app_folder: reactive-rest-app
