@@ -18,18 +18,21 @@ import io.vertx.ext.web.handler.ResponseTimeHandler
 import io.vertx.ext.web.handler.TimeoutHandler
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
+import java.util.*
 
 
-class HelloService(private val router: Router) : RouterService {
+class HelloService(private val router: Router, vertx: Vertx) : RouterService {
     override val logger: Logger = logger()
+    val bus = vertx.eventBus()
 
     override fun finalize(): Router = router.apply {
         get("/hello/").produces(ContentTypes.json).handler(helloWorld)
         get("/helloworld").produces(ContentTypes.plainText).handler(helloPlainWorld)
         get("/hello/:name").produces(ContentTypes.json).handler(helloInput)
+        put("/order").produces(ContentTypes.plainText).handler(processOrder)
     }
 
-    
+
     private val helloPlainWorld: (RoutingContext) -> Unit = { context ->
         context.response().apply {
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
@@ -46,7 +49,19 @@ class HelloService(private val router: Router) : RouterService {
     }
     private val helloInput: (RoutingContext) -> Unit = {
         it.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
-            .end(json { obj("message" to "Hello ${it.pathParam("name")}!") }.toBuffer())
+                .end(json { obj("message" to "Hello ${it.pathParam("name")}!") }.toBuffer())
+    }
+
+    private val processOrder: (RoutingContext) -> Unit = {
+        val uuid: UUID = UUID.randomUUID()
+        it.response().apply {
+            putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
+            isChunked = false
+            end(uuid.toString())
+        }
+        bus.publish("orders", json {
+            obj("id" to uuid.toString())
+        })
     }
 }
 
@@ -71,21 +86,21 @@ class TimeoutService(private val router: Router, vertx: Vertx) : RouterService {
     private val timeoutWithTime: (RoutingContext) -> Unit = { context ->
         val time = context.request().getParam("time") ?: "150"
         client.get(port, host, "/client/$time").`as`(BodyCodec.string())
-            .send { res ->
-                if (res.succeeded()) {
-                    val message = when (res.result().getHeader(HttpHeaders.CONTENT_TYPE.toString())) {
-                        ContentTypes.plainText -> json { obj("message" to "Hello, ${res.result().body()}!") }
-                        ContentTypes.json -> res.result().bodyAsJsonObject()
-                        else -> json { obj("message" to "Hello, ${res.result().body()}!") }
+                .send { res ->
+                    if (res.succeeded()) {
+                        val message = when (res.result().getHeader(HttpHeaders.CONTENT_TYPE.toString())) {
+                            ContentTypes.plainText -> json { obj("message" to "Hello, ${res.result().body()}!") }
+                            ContentTypes.json -> res.result().bodyAsJsonObject()
+                            else -> json { obj("message" to "Hello, ${res.result().body()}!") }
+                        }
+                        context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
+                                .setStatusCode(200)
+                                .end(message.toBuffer())
+                    } else {
+                        context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
+                                .setStatusCode(500).end(res.cause().message)
                     }
-                    context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
-                        .setStatusCode(200)
-                        .end(message.toBuffer())
-                } else {
-                    context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
-                        .setStatusCode(500).end(res.cause().message)
                 }
-            }
     }
 
     fun listenForConfig(): Unit = retriever.listen {

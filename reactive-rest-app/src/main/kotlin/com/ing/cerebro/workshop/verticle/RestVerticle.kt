@@ -22,7 +22,7 @@ class RestVerticle : AbstractVerticle(), Loggable {
             val port: Int = config.getInteger("server.port", 8080)
             val server: HttpServer = vertx.createHttpServer()
             val router: Router = Router.router(vertx)
-            HelloService(router).finalize()
+            HelloService(router,vertx).finalize()
             TimeoutService(router, vertx).apply {
                 listenForConfig()
                 finalize()

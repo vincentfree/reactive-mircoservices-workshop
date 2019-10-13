@@ -20,7 +20,7 @@ wrk --latency -t 1 -c 25 http://localhost:8082/hello
 
 output
 
-```txt
+```bash
 Running 10s test @ http://localhost:8082/hello
   1 threads and 25 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -46,7 +46,7 @@ wrk --latency -t 1 -c 25 http://localhost:8081/hello
 
 output
 
-```txt
+```bash
 Running 10s test @ http://localhost:8081/hello
   1 threads and 25 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -63,13 +63,15 @@ Transfer/sec:      8.32MB
 ```
 
 
-### from environment
+### from Azure environment
 
-```txt
+```bash
 root@test-run-vertx-rest-service-test-container:/# wrk --latency -c 1000 -t 1 http://test-run-vertx-rest-service:80/timeout/1000
+```
 
 ## Vertx application
 
+```bash
 Running 10s test @ http://test-run-vertx-rest-service:80/timeout/1000
   1 threads and 1000 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -86,11 +88,35 @@ Running 10s test @ http://test-run-vertx-rest-service:80/timeout/1000
   Socket errors: connect 0, read 0, write 0, timeout 26
 Requests/sec:   1747.95
 Transfer/sec:    283.36KB
+```
 
-root@test-run-vertx-rest-service-test-container:/# wrk --latency -c 2000 -t 2 http://test-run-spring-rest-service:80/timeout/1000
+### Openj9 test
+
+```bash
+Running 10s test @ http://test-run-vertx-rest-service:80/hello
+  1 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.94ms    9.34ms 136.15ms   97.49%
+    Req/Sec    17.53k     5.90k   26.10k    67.68%
+  Latency Distribution
+     50%  408.00us
+     75%  610.00us
+     90%    1.62ms
+     99%   47.70ms
+  173521 requests in 10.05s, 16.05MB read
+Requests/sec:  17263.47
+Transfer/sec:      1.60MB
+```
+
+### Same with GraalVM
+
+```bash
+
+```
 
 ## Spring application
 
+```bash
 Running 10s test @ http://test-run-spring-rest-service:80/timeout/1000
   2 threads and 2000 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
