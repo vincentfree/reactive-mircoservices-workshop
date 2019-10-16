@@ -33,6 +33,8 @@ spec:
               value: {{.Release.Name}}
             - name: configName
               value: {{ include "vertx-rest-service.fullname" . }}-config
+            - name: HAZELCAST_SERVICE_NAME
+              value: {{ include "vertx-rest-service.fullname" . }}-hazelcast
           ports:
             - name: http
               containerPort: {{.Values.image.port}}

@@ -1,10 +1,9 @@
 package com.ing.cerebro.workshop.service
 
-import com.ing.cerebro.workshop.core.ContentTypes
-import com.ing.cerebro.workshop.core.RetrieverConfig
-import com.ing.cerebro.workshop.core.RouterService
+import com.ing.cerebro.workshop.core.*
 import io.vertx.config.ConfigRetriever
 import io.vertx.core.Vertx
+import io.vertx.core.eventbus.EventBus
 import io.vertx.core.http.HttpHeaders
 import io.vertx.core.impl.logging.Logger
 import io.vertx.core.json.JsonObject
@@ -19,11 +18,12 @@ import io.vertx.ext.web.handler.TimeoutHandler
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
 import java.util.*
+import kotlin.random.Random
 
 
 class HelloService(private val router: Router, vertx: Vertx) : RouterService {
     override val logger: Logger = logger()
-    val bus = vertx.eventBus()
+    private val bus: EventBus = vertx.eventBus()
 
     override fun finalize(): Router = router.apply {
         get("/hello/").produces(ContentTypes.json).handler(helloWorld)
@@ -49,19 +49,33 @@ class HelloService(private val router: Router, vertx: Vertx) : RouterService {
     }
     private val helloInput: (RoutingContext) -> Unit = {
         it.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
-                .end(json { obj("message" to "Hello ${it.pathParam("name")}!") }.toBuffer())
+            .end(json { obj("message" to "Hello ${it.pathParam("name")}!") }.toBuffer())
     }
 
     private val processOrder: (RoutingContext) -> Unit = {
         val uuid: UUID = UUID.randomUUID()
+        val result = randomOrder(uuid)
+        publishOrder(result)
         it.response().apply {
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
             isChunked = false
             end(uuid.toString())
         }
-        bus.publish("orders", json {
-            obj("id" to uuid.toString())
-        })
+    }
+
+    private fun publishOrder(order: Order) {
+        bus.publish("orders", JsonObject.mapFrom(order))
+    }
+
+    private fun randomOrder(uuid: UUID): Order = Order(uuid.toString(), randomType(), OrderStatus.PENDING)
+    private fun randomType(): OrderType = when (Random.nextInt(0, 5)) {
+        0 -> OrderType.COFFEE
+        1 -> OrderType.TEA
+        2 -> OrderType.LATTE
+        3 -> OrderType.LATTE
+        4 -> OrderType.CHOCOLATE_MILK
+        5 -> OrderType.MILK
+        else -> throw IllegalArgumentException("Something went wrong with random")
     }
 }
 
@@ -86,21 +100,21 @@ class TimeoutService(private val router: Router, vertx: Vertx) : RouterService {
     private val timeoutWithTime: (RoutingContext) -> Unit = { context ->
         val time = context.request().getParam("time") ?: "150"
         client.get(port, host, "/client/$time").`as`(BodyCodec.string())
-                .send { res ->
-                    if (res.succeeded()) {
-                        val message = when (res.result().getHeader(HttpHeaders.CONTENT_TYPE.toString())) {
-                            ContentTypes.plainText -> json { obj("message" to "Hello, ${res.result().body()}!") }
-                            ContentTypes.json -> res.result().bodyAsJsonObject()
-                            else -> json { obj("message" to "Hello, ${res.result().body()}!") }
-                        }
-                        context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
-                                .setStatusCode(200)
-                                .end(message.toBuffer())
-                    } else {
-                        context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
-                                .setStatusCode(500).end(res.cause().message)
+            .send { res ->
+                if (res.succeeded()) {
+                    val message = when (res.result().getHeader(HttpHeaders.CONTENT_TYPE.toString())) {
+                        ContentTypes.plainText -> json { obj("message" to "Hello, ${res.result().body()}!") }
+                        ContentTypes.json -> res.result().bodyAsJsonObject()
+                        else -> json { obj("message" to "Hello, ${res.result().body()}!") }
                     }
+                    context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
+                        .setStatusCode(200)
+                        .end(message.toBuffer())
+                } else {
+                    context.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
+                        .setStatusCode(500).end(res.cause().message)
                 }
+            }
     }
 
     fun listenForConfig(): Unit = retriever.listen {

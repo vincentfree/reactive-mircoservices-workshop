@@ -1,11 +1,13 @@
 package com.ing.cerebro.workshop.core
 
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.hazelcast.config.Config
 import io.vertx.config.ConfigRetrieverOptions
 import io.vertx.config.ConfigStoreOptions
 import io.vertx.core.VertxOptions
 import io.vertx.core.impl.logging.Logger
 import io.vertx.core.impl.logging.LoggerFactory
+import io.vertx.core.json.jackson.DatabindCodec
 import io.vertx.core.spi.cluster.ClusterManager
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.json.jsonObjectOf
@@ -55,7 +57,46 @@ interface Loggable {
     }
 }
 
-object Hazelcast {
-    fun clusterConfig(hazelcastConfig: Config): ClusterManager = HazelcastClusterManager(hazelcastConfig)
-    fun setClusterManager(mgr:ClusterManager, options: VertxOptions): VertxOptions = options.setClusterManager(mgr)
+    fun clusterConfig(config: Config): ClusterManager = HazelcastClusterManager(
+        config.setProperty("hazelcast.logging.type", "slf4j")
+    )
+
+    fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost: String = "localhost"): VertxOptions {
+        return options.apply {
+            clusterManager = mgr
+            eventBusOptions.host = clusterHost
+        }
+    }
+
+    val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
+    val kubeConfig: (String) -> Config = {
+        Config().apply {
+            networkConfig.join.multicastConfig.isEnabled = false
+            networkConfig.join.kubernetesConfig.isEnabled = true
+            networkConfig.join.kubernetesConfig.apply {
+                setProperty("namespace", "reactive-workshop")
+                setProperty("service-name", it)
+            }
+        }
+    }
+    val localConfig: Config = Config().apply {
+        networkConfig.join.multicastConfig.isEnabled = false
+        networkConfig.join.tcpIpConfig.isEnabled = true
+        networkConfig.join.tcpIpConfig.addMember(System.getenv("HOSTNAME") ?: "localhost")
+        networkConfig.join.tcpIpConfig.addMember("localhost")
+        networkConfig.join.tcpIpConfig.addMember("localhost:5701")
+    }
+
+data class Order(val id: String, val type: OrderType, val status: OrderStatus)
+
+enum class OrderStatus { PENDING, PICKED_UP, HOT, COLD }
+enum class OrderType { COFFEE, TEA, LATTE, CHOCOLATE_MILK, MILK }
+
+fun prepareJsonMapper() {
+    DatabindCodec.mapper().apply {
+        registerKotlinModule()
+    }
+    DatabindCodec.prettyMapper().apply {
+        registerKotlinModule()
+    }
 }

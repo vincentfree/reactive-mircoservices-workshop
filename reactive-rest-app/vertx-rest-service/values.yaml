@@ -62,3 +62,6 @@ postgres:
   storage: 2Gi
   port: 5432
   tag: '12.0'
+
+hazelcast:
+  port: 5701

@@ -2,6 +2,7 @@ package com.ing.cerebro.workshop.verticle
 
 import com.ing.cerebro.workshop.core.Loggable
 import com.ing.cerebro.workshop.core.RetrieverConfig
+import com.ing.cerebro.workshop.core.prepareJsonMapper
 import com.ing.cerebro.workshop.service.HelloService
 import com.ing.cerebro.workshop.service.TimeoutService
 import io.vertx.config.ConfigRetriever
@@ -18,6 +19,7 @@ class RestVerticle : AbstractVerticle(), Loggable {
     override fun start(startPromise: Promise<Void>) {
         val retriever: ConfigRetriever = ConfigRetriever.create(vertx, RetrieverConfig.options)
         retriever.getConfig {
+            prepareJsonMapper()
             val config: JsonObject = it.result()
             val port: Int = config.getInteger("server.port", 8080)
             val server: HttpServer = vertx.createHttpServer()
