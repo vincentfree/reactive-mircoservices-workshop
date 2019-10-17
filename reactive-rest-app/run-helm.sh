@@ -1,3 +1,4 @@
+#! /bin/bash
 location=vertx-rest-service
 if [[ -n $1 && -z $2 ]]; then
   helm template --name "$1" --output-dir target $location
