@@ -26,7 +26,7 @@ interface RouterService : Loggable {
 }
 
 object RetrieverConfig {
-    val options = ConfigRetrieverOptions().apply {
+    val     options = ConfigRetrieverOptions().apply {
         scanPeriod = 5000
         addStore(
             ConfigStoreOptions().apply {
@@ -87,7 +87,7 @@ interface Loggable {
         networkConfig.join.tcpIpConfig.addMember("localhost:5701")
     }
 
-data class Order(val id: String, val type: OrderType, val status: OrderStatus)
+data class Order(val id: String, val type: OrderType, val status: OrderStatus, val customer:String)
 
 enum class OrderStatus { PENDING, PICKED_UP, HOT, COLD }
 enum class OrderType { COFFEE, TEA, LATTE, CHOCOLATE_MILK, MILK }

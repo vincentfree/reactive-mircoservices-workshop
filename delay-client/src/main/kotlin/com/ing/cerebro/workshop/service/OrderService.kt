@@ -6,6 +6,7 @@ import com.ing.cerebro.workshop.core.Order
 import com.ing.cerebro.workshop.core.OrderStatus
 import com.ing.cerebro.workshop.core.RouterService
 import io.vertx.core.Vertx
+import io.vertx.core.eventbus.DeliveryOptions
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.MessageConsumer
 import io.vertx.core.http.HttpHeaders
@@ -17,6 +18,7 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
 import kotlin.random.Random
+import kotlin.random.nextLong
 
 class OrderService(private val router: Router, private val vertx: Vertx) : RouterService {
     override val logger: Logger = logger()
@@ -25,19 +27,33 @@ class OrderService(private val router: Router, private val vertx: Vertx) : Route
         get("/order/:id").produces(ContentTypes.json).handler(getOrderInfo)
         get("/order/status/:id").produces(ContentTypes.json).handler(orderStatus)
         delete("/order/:id").produces(ContentTypes.json).handler(pickUpOrder)
+        delete("/orders").produces(ContentTypes.plainText).handler(deleteAllOrders)
     }
 
     private val bus: EventBus = vertx.eventBus()
     private val orders: MutableMap<String, Order> = mutableMapOf()
 
     private val allOrders: (RoutingContext) -> Unit = { ctx ->
-        ctx.response().end(JsonArray(orders.values.toList()).encodePrettily())
+        ctx.response().apply {
+            putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
+            end(JsonArray(orders.values.toList()).encodePrettily())
+        }
+    }
+    private val deleteAllOrders: (RoutingContext) -> Unit = { ctx ->
+        orders.clear()
+        ctx.response().apply {
+            putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
+            end("Everything is gone!")
+        }
     }
 
     private val orderStatus: (RoutingContext) -> Unit = { ctx ->
         val orderId = ctx.pathParam("id")
         logger.info("getting response for id: $orderId")
-        ctx.response().end(orders[orderId]?.status?.name ?: "order not found")
+        ctx.response().apply {
+            putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
+            end(orders[orderId]?.status?.name ?: "order not found")
+        }
     }
 
     private val getOrderInfo: (RoutingContext) -> Unit = { ctx ->
@@ -54,13 +70,16 @@ class OrderService(private val router: Router, private val vertx: Vertx) : Route
     private val pickUpOrder: (RoutingContext) -> Unit = { ctx ->
         val orderId = ctx.pathParam("id")
         val order = orders[orderId]
-        val res =
-            if (order?.status == OrderStatus.HOT) json {
-                orders.remove(order.id)
+        val res = if (order?.status == OrderStatus.HOT) {
+            orders.remove(order.id)
+            json {
                 obj("message" to "your ${order.type} is ready for you", "order" to order)
             }
-            else json { obj("message" to "order isn't ready") }
-        ctx.response().end(res.encodePrettily())
+        } else json { obj("message" to "order isn't ready") }
+        ctx.response().apply {
+            putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
+            end(res.encodePrettily())
+        }
     }
 
     fun consumeMessages(): MessageConsumer<JsonObject> = bus.consumer<JsonObject>("orders") {
@@ -70,7 +89,7 @@ class OrderService(private val router: Router, private val vertx: Vertx) : Route
     }
 
     private fun pickOrderUp(id: String) {
-        vertx.setTimer(Random.nextLong(5000, 20000)) {
+        vertx.setTimer(Random.nextLong(LongRange(5000, 20000))) {
             val newStatus = orders[id]?.copy(status = OrderStatus.PICKED_UP)
             newStatus?.let {
                 orders[it.id] = it
@@ -81,18 +100,19 @@ class OrderService(private val router: Router, private val vertx: Vertx) : Route
     }
 
     private fun finishOrder(id: String) {
-        vertx.setTimer(Random.nextLong(8000, 20000)) {
+        vertx.setTimer(Random.nextLong(LongRange(8000, 30000))) {
             val newStatus = orders[id]?.copy(status = OrderStatus.HOT)
             newStatus?.let {
                 orders[it.id] = it
                 logger.info("The ${it.type.name} of $id is done and HOT!")
                 gettingCold(it.id)
+                bus.publish("order-ready", JsonObject.mapFrom(it), DeliveryOptions().addHeader("customer", it.customer))
             }
         }
     }
 
     private fun gettingCold(id: String) {
-        vertx.setTimer(Random.nextLong(30000, 60000)) {
+        vertx.setTimer(Random.nextLong(LongRange(30000, 60000))) {
             val newStatus = orders[id]?.copy(status = OrderStatus.COLD)
             newStatus?.let {
                 orders[it.id] = it
@@ -102,27 +122,9 @@ class OrderService(private val router: Router, private val vertx: Vertx) : Route
         }
     }
 
-    private fun removeColdOne(id:String) {
+    private fun removeColdOne(id: String) {
         vertx.setTimer(40000) {
             orders.remove(id)
         }
     }
-
-    /*private fun test(id: String) = phaseChange(OrderPhase(id, 6000, 10000, OrderStatus.COLD))
-    private fun test2(id: String) = phaseChange(OrderPhase(id, 6000, 10000, OrderStatus.COLD))
-
-    private fun phaseChange(orderPhase: OrderPhase): Promise<OrderPhase?> {
-        Future.future<OrderPhase?> { promise -> return with(orderPhase) {
-            val newStatus = orders[id]?.copy(status = status)
-            vertx.setTimer(Random.nextLong(from, until)) {
-                newStatus?.let {
-                    orders[it.id] = it
-                }
-            }
-            newStatus
-        } }
-        Promise.promise<OrderPhase?>()
-    }
-
-    class OrderPhase(val id: String, val from: Long, val until: Long, val status: OrderStatus)*/
 }

@@ -15,6 +15,8 @@ import io.vertx.ext.web.Router
 import kotlin.system.exitProcess
 
 class RestVerticle : AbstractVerticle(), Loggable {
+    private val router: Router by lazy { Router.router(vertx) }
+    private val helloService by lazy { HelloService(router, vertx) }
     override val logger: Logger = logger()
     override fun start(startPromise: Promise<Void>) {
         val retriever: ConfigRetriever = ConfigRetriever.create(vertx, RetrieverConfig.options)
@@ -23,8 +25,10 @@ class RestVerticle : AbstractVerticle(), Loggable {
             val config: JsonObject = it.result()
             val port: Int = config.getInteger("server.port", 8080)
             val server: HttpServer = vertx.createHttpServer()
-            val router: Router = Router.router(vertx)
-            HelloService(router,vertx).finalize()
+            helloService.apply {
+                consumeMessages()
+                finalize()
+            }
             TimeoutService(router, vertx).apply {
                 listenForConfig()
                 finalize()
@@ -39,6 +43,18 @@ class RestVerticle : AbstractVerticle(), Loggable {
                     logger.error("failed to start")
                     exitProcess(1)
                 }
+            }
+        }
+    }
+
+    override fun stop(stopPromise: Promise<Void>) {
+        helloService.consumeMessages().unregister {
+            if (it.succeeded()) {
+                logger.info("Successfully stopped listening to event bus")
+                stopPromise.complete()
+            } else {
+                logger.error("Failed to unregister from event bus")
+                stopPromise.fail(it.cause())
             }
         }
     }
