@@ -38,7 +38,7 @@ class RestVerticle : AbstractVerticle(), Loggable {
             serverFut.setHandler { s ->
                 if (s.succeeded()) {
                     startPromise.complete()
-                    logger.info("Server started on port $port")
+                    logger.info("Server started on port $port ⚙️")
                 } else {
                     logger.error("failed to start")
                     exitProcess(1)

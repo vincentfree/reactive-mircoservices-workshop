@@ -49,12 +49,12 @@ class HelloService(private val router: Router, val vertx: Vertx) : RouterService
         context.response().apply {
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
             isChunked = false
-            end(JsonObject().put("message", "Hello world!").toBuffer())
+            end(JsonObject().put("message", "Hello 🌍!").toBuffer())
         }
     }
     private val helloInput: (RoutingContext) -> Unit = {
         it.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
-            .end(json { obj("message" to "Hello ${it.pathParam("name")}!") }.toBuffer())
+            .end(json { obj("message" to "Hello ${it.pathParam("name")}! 👋") }.toBuffer())
     }
 
     private val processOrders: (RoutingContext) -> Unit = {
@@ -69,7 +69,7 @@ class HelloService(private val router: Router, val vertx: Vertx) : RouterService
         } else {
             it.response().setStatusCode(400).end(json {
                 obj(
-                    "message" to "Path variable isn't a number",
+                    "message" to "Path variable isn't a number 🧮",
                     "value" to it.pathParam("times")
                 )
             }.encodePrettily())
