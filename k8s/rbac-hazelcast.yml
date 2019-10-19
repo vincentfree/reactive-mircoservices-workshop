@@ -9,5 +9,5 @@ roleRef:
   name: view
 subjects:
   - kind: ServiceAccount
-    name: reactive-workshop-hazelcast
+    name: hazelcast-sa
     namespace: reactive-workshop
