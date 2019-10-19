@@ -34,7 +34,8 @@ spec:
             - name: configName
               value: {{ include "vertx-delay-service.fullname" . }}-config
             - name: HAZELCAST_SERVICE_NAME
-              value: {{ include "vertx-delay-service.fullname" . }}-hazelcast
+              value: {{ .Values.service_accounts.hazelcast }}
+              # value: {{ include "vertx-delay-service.fullname" . }}-hazelcast
           ports:
             - name: http
               containerPort: {{.Values.image.port}}

@@ -54,3 +54,6 @@ affinity: {}
 
 hazelcast:
   port: 5701
+
+service_accounts:
+  hazelcast: hazelcast-sa
