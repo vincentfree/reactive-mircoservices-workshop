@@ -65,6 +65,7 @@ interface Loggable {
         return options.apply {
             clusterManager = mgr
             eventBusOptions.host = clusterHost
+            // eventBusOptions.clusterPublicPort = 5701
         }
     }
 

@@ -25,6 +25,9 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          #volumeMounts:
+          #  - mountPath: /var/run/secrets/tokens
+          #    name: {{ .Values.service_accounts.hazelcast.token }}
           envFrom:
             - configMapRef:
                 name: {{ include "vertx-delay-service.fullname" . }}-config
@@ -34,8 +37,7 @@ spec:
             - name: configName
               value: {{ include "vertx-delay-service.fullname" . }}-config
             - name: HAZELCAST_SERVICE_NAME
-              value: {{ .Values.service_accounts.hazelcast }}
-              # value: {{ include "vertx-delay-service.fullname" . }}-hazelcast
+              value: {{ include "vertx-delay-service.fullname" . }}-hazelcast
           ports:
             - name: http
               containerPort: {{.Values.image.port}}
@@ -50,7 +52,7 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      serviceAccountName: hazelcast-sa
+      serviceAccountName: {{ .Values.service_accounts.hazelcast.name }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

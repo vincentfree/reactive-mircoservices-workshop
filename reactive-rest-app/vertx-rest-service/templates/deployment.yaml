@@ -25,9 +25,9 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          volumeMounts:
-            - mountPath: /var/run/secrets/tokens
-              name: {{ .Values.serice_accounts.hazelcast }}
+          # volumeMounts:
+          #  - mountPath: /var/run/secrets/tokens
+          #    name: {{ .Values.serice_accounts.hazelcast }}
           envFrom:
             - configMapRef:
                 name: {{ include "vertx-rest-service.fullname" . }}-config
@@ -37,8 +37,7 @@ spec:
             - name: configName
               value: {{ include "vertx-rest-service.fullname" . }}-config
             - name: HAZELCAST_SERVICE_NAME
-              # value: {{ include "vertx-rest-service.fullname" . }}-hazelcast
-              value: {{ .Values.service_accounts.hazelcast }}
+              value: {{ include "vertx-rest-service.fullname" . }}-hazelcast
           ports:
             - name: http
               containerPort: {{.Values.image.port}}

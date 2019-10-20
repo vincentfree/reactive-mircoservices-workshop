@@ -56,4 +56,6 @@ hazelcast:
   port: 5701
 
 service_accounts:
-  hazelcast: hazelcast-sa
+  hazelcast:
+    name: hazelcast-sa
+    token: hazelcast-token
