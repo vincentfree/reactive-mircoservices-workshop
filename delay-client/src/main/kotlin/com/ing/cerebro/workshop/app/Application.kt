@@ -9,7 +9,9 @@ import kotlin.system.exitProcess
 fun main() {
     val hazelcastServiceName by lazy { System.getenv("HAZELCAST_SERVICE_NAME") }
     val hazelcastHost by lazy {
+        System.getenv(
         hazelcastServiceName.replace("-", "_", false).toUpperCase() + "_SERVICE_HOST"
+        )
     }
     val config = when (isKubeEnvironment) {
         true -> kubeConfig.invoke(hazelcastServiceName)
