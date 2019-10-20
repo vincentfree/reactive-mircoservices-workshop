@@ -25,9 +25,6 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          # volumeMounts:
-          #  - mountPath: /var/run/secrets/tokens
-          #    name: {{ .Values.serice_accounts.hazelcast }}
           envFrom:
             - configMapRef:
                 name: {{ include "vertx-rest-service.fullname" . }}-config
