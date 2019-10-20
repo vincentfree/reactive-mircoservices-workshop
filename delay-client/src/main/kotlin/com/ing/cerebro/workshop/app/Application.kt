@@ -8,7 +8,9 @@ import kotlin.system.exitProcess
 
 fun main() {
     val hazelcastServiceName by lazy { System.getenv("HAZELCAST_SERVICE_NAME") }
-    val hazelcastPort by lazy { hazelcastServiceName.replace("-", "_", false).capitalize() + "_SERVICE_HOST" }
+    val hazelcastHost by lazy {
+        hazelcastServiceName.replace("-", "_", false).toUpperCase() + "_SERVICE_HOST"
+    }
     val config = when (isKubeEnvironment) {
         true -> kubeConfig.invoke(hazelcastServiceName)
         false -> localConfig
@@ -18,7 +20,7 @@ fun main() {
         true -> createClusterManager(
             VertxOptions(),
             clusterConfig(config),
-            hazelcastPort
+            hazelcastHost
         )
         false -> createClusterManager(VertxOptions(), clusterConfig(config))
     }
