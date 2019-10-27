@@ -106,10 +106,17 @@ class OrderService(private val router: Router, private val vertx: Vertx) : Route
                 orders[it.id] = it
                 logger.info("The ${it.type.name} of $id is done and HOT!")
                 gettingCold(it.id)
-                bus.publish("order-ready", JsonObject.mapFrom(it), DeliveryOptions().addHeader("customer", it.customer))
+                publishOrder(it)
             }
         }
     }
+    // Presentation code snippet
+    private fun publishOrder(order:Order): EventBus = bus.publish(
+        "${order.customer}-order-ready",
+        JsonObject.mapFrom(order),
+        DeliveryOptions().addHeader("customer", order.customer)
+    )
+
 
     private fun gettingCold(id: String) {
         vertx.setTimer(Random.nextLong(LongRange(30000, 60000))) {

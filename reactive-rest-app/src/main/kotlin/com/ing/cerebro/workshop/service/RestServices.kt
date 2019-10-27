@@ -99,8 +99,8 @@ class HelloService(private val router: Router, val vertx: Vertx) : RouterService
     private fun publishOrder(order: Order) {
         bus.send("orders", JsonObject.mapFrom(order))
     }
-
-    fun consumeMessages(): MessageConsumer<JsonObject> = bus.consumer<JsonObject>("order-ready") {
+    //Presentation code snippet
+    fun consumeMessages(): MessageConsumer<JsonObject> = bus.consumer<JsonObject>("${customerId}-order-ready") {
         val order = if (it.headers()["customer"] == customerId) it.body().mapTo(Order::class.java) else null
         order?.let { o ->
             orders.putIfAbsent(o.id, o)
