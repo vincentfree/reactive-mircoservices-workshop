@@ -10,7 +10,10 @@ fun main() {
     val hazelcastServiceName by lazy { System.getenv("HAZELCAST_SERVICE_NAME") }
     val hazelcastHost by lazy {
         System.getenv(
-        hazelcastServiceName.replace("-", "_", false).toUpperCase() + "_SERVICE_HOST"
+        // hazelcastServiceName.replace("-", "_", false).toUpperCase() + "_SERVICE_HOST"
+        System.getenv("release")
+            .replace("-", "_", false)
+            .toUpperCase() + "_VERTX_DELAY_SERVICE_PORT_80_TCP_ADDR"
         )
     }
     val config = when (isKubeEnvironment) {
