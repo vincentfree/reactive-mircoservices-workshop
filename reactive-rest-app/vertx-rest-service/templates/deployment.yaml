@@ -39,6 +39,8 @@ spec:
             - name: http
               containerPort: {{.Values.image.port}}
               protocol: TCP
+            - containerPort: {{ .Values.hazelcast.port }}
+              name: hazelcast
           livenessProbe:
             httpGet:
               path: /hello

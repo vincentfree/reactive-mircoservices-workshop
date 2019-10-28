@@ -24,6 +24,8 @@ class RestVerticle : AbstractVerticle(), Loggable {
             prepareJsonMapper()
             val config: JsonObject = it.result()
             val port: Int = config.getInteger("server.port", 8080)
+            // Native transport on BSD
+//            val server: HttpServer = vertx.createHttpServer(HttpServerOptions().setReusePort(true))
             val server: HttpServer = vertx.createHttpServer()
             helloService.apply {
                 consumeMessages()

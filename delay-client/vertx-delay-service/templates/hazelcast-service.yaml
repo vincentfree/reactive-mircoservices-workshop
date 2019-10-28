@@ -9,6 +9,7 @@ spec:
   type: LoadBalancer
   ports:
     - port: {{ .Values.hazelcast.port }}
+      targetPort: hazelcast
       name: hazelcast
   selector:
     app.kubernetes.io/name: {{ include "vertx-delay-service.name" . }}-hazelcast

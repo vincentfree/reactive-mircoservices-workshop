@@ -62,6 +62,43 @@ Requests/sec:  89960.00
 Transfer/sec:      8.32MB
 ```
 
+### sometimes
+
+```
+$ wrk --latency -t 1 -c 25 http://localhost:8081/helloworld
+Running 10s test @ http://localhost:8081/helloworld
+  1 threads and 25 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.22ms    9.29ms 148.34ms   98.80%
+    Req/Sec   100.41k    31.34k  129.32k    86.87%
+  Latency Distribution
+     50%  195.00us
+     75%  261.00us
+     90%  454.00us
+     99%   32.25ms
+  987978 requests in 10.00s, 72.55MB read
+Requests/sec:  98774.21
+Transfer/sec:      7.25MB
+```
+
+with some tuning
+
+```shell script
+$ wrk --latency -t 1 -c 75 http://localhost:8081/helloworld
+Running 10s test @ http://localhost:8081/helloworld
+  1 threads and 75 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   625.49us  441.57us  22.78ms   97.48%
+    Req/Sec   120.28k    11.65k  130.67k    89.00%
+  Latency Distribution
+     50%  567.00us
+     75%  624.00us
+     90%  765.00us
+     99%    1.32ms
+  1194935 requests in 10.00s, 87.75MB read
+Requests/sec: 119460.51
+Transfer/sec:      8.77MB
+```
 
 ### from Azure environment
 
@@ -132,3 +169,117 @@ Running 10s test @ http://test-run-spring-rest-service:80/timeout/1000
 Requests/sec:    140.86
 Transfer/sec:     25.31KB
 ```
+
+
+
+----
+
+### performance with RSS
+
+Spring REST service
+
+```shell script
+$ wrk --latency -t 1 -c 75 http://localhost:8082/helloworld
+Running 10s test @ http://localhost:8082/helloworld
+  1 threads and 75 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.86ms  703.40us  13.49ms   74.93%
+    Req/Sec    31.55k     2.55k   38.24k    68.00%
+  Latency Distribution
+     50%    1.95ms
+     75%    2.18ms
+     90%    2.54ms
+     99%    3.69ms
+  315049 requests in 10.04s, 37.91MB read
+Requests/sec:  31374.27
+Transfer/sec:      3.78MB
+```
+
+used **781,92MB**
+
+Settings with xms 2G and xmx 2G
+
+```shell script
+$ wrk --latency -t 1 -c 75 http://localhost:8082/helloworld
+Running 10s test @ http://localhost:8082/helloworld
+  1 threads and 75 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.85ms  769.16us  21.99ms   74.65%
+    Req/Sec    30.40k     2.48k   37.58k    67.00%
+  Latency Distribution
+     50%    1.91ms
+     75%    2.17ms
+     90%    2.64ms
+     99%    4.41ms
+  303498 requests in 10.04s, 36.52MB read
+Requests/sec:  30235.37
+Transfer/sec:      3.64MB
+```
+
+used **218 MB**
+
+settings xms200m xmx200m
+
+----
+
+```shell script
+$ wrk --latency -t 1 -c 75 http://localhost:8081/helloworld
+Running 10s test @ http://localhost:8081/helloworld
+  1 threads and 75 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   633.76us  247.40us  12.08ms   83.91%
+    Req/Sec   117.32k     9.20k  126.92k    90.00%
+  Latency Distribution
+     50%  551.00us
+     75%  720.00us
+     90%    0.95ms
+     99%    1.30ms
+  1166274 requests in 10.00s, 85.64MB read
+Requests/sec: 116593.31
+Transfer/sec:      8.56MB
+```
+
+used **1.069,03 MB**
+
+Settings with xms 2G and xmx 2G
+
+```shell script
+$ wrk --latency -t 1 -c 75 http://localhost:8081/helloworld
+Running 10s test @ http://localhost:8081/helloworld
+  1 threads and 75 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   630.89us  475.34us  24.59ms   97.31%
+    Req/Sec   120.64k    14.56k  131.68k    93.00%
+  Latency Distribution
+     50%  567.00us
+     75%  615.00us
+     90%  772.00us
+     99%    1.58ms
+  1199149 requests in 10.00s, 88.06MB read
+Requests/sec: 119869.07
+Transfer/sec:      8.80MB
+```
+
+used **440,11 MB**
+
+Settings with xms 200M and xmx 200M
+
+
+### Vert.x with native transport (BSD)
+
+```shell script
+$ wrk --latency -t 1 -c 75 http://localhost:8081/helloworld
+Running 10s test @ http://localhost:8081/helloworld
+  1 threads and 75 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   599.95us  237.42us  16.22ms   97.10%
+    Req/Sec   123.28k    10.74k  130.76k    92.00%
+  Latency Distribution
+     50%  566.00us
+     75%  600.00us
+     90%  661.00us
+     99%    1.09ms
+  1226074 requests in 10.00s, 90.03MB read
+Requests/sec: 122558.16
+Transfer/sec:      9.00MB
+``` 
