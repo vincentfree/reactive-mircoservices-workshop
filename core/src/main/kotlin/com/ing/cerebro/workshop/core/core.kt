@@ -65,7 +65,7 @@ interface Loggable {
         return options.apply {
             clusterManager = mgr
             eventBusOptions.host = clusterHost
-            // eventBusOptions.clusterPublicPort = 5701
+             eventBusOptions.clusterPublicPort = 5701
         }
     }
 
@@ -78,6 +78,7 @@ interface Loggable {
                 setProperty("namespace", "reactive-workshop")
                 setProperty("service-name", it)
             }
+            networkConfig.port = 5701
         }
     }
     val localConfig: Config = Config().apply {
