@@ -26,7 +26,7 @@ interface RouterService : Loggable {
 }
 
 object RetrieverConfig {
-    val     options = ConfigRetrieverOptions().apply {
+    val options = ConfigRetrieverOptions().apply {
         scanPeriod = 5000
         addStore(
             ConfigStoreOptions().apply {
@@ -57,41 +57,42 @@ interface Loggable {
     }
 }
 
-    fun clusterConfig(config: Config): ClusterManager = HazelcastClusterManager(
-        config.setProperty("hazelcast.logging.type", "slf4j")
-    )
+fun clusterConfig(config: Config): ClusterManager = HazelcastClusterManager(
+    config.setProperty("hazelcast.logging.type", "slf4j")
+)
 
-    fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost: String = "localhost"): VertxOptions {
-        return options.apply {
-            clusterManager = mgr
-            eventBusOptions.host = clusterHost
-//             eventBusOptions.clusterPublicPort = 5701
-             eventBusOptions.port = 5701
-        }
+fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost: String = "localhost"): VertxOptions {
+    return options.apply {
+        clusterManager = mgr
+        eventBusOptions.host = clusterHost
+        eventBusOptions.port = 5701
+        eventBusOptions.clusterPublicHost = clusterHost
+        eventBusOptions.clusterPublicPort = 5701
     }
+}
 
-    val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
-    val kubeConfig: (String) -> Config = {
-        Config().apply {
-            networkConfig.join.multicastConfig.isEnabled = false
-            networkConfig.join.kubernetesConfig.isEnabled = true
-            networkConfig.join.kubernetesConfig.apply {
-                setProperty("namespace", "reactive-workshop")
-                setProperty("service-name", it)
-                setProperty("service-port", 5701.toString())
-            }
-            networkConfig.port = 5701
-        }
-    }
-    val localConfig: Config = Config().apply {
+val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
+val kubeConfig: (String) -> Config = {
+    Config().apply {
         networkConfig.join.multicastConfig.isEnabled = false
-        networkConfig.join.tcpIpConfig.isEnabled = true
-        networkConfig.join.tcpIpConfig.addMember(System.getenv("HOSTNAME") ?: "localhost")
-        networkConfig.join.tcpIpConfig.addMember("localhost")
-        networkConfig.join.tcpIpConfig.addMember("localhost:5701")
+        networkConfig.join.kubernetesConfig.isEnabled = true
+        networkConfig.join.kubernetesConfig.apply {
+            setProperty("namespace", "reactive-workshop")
+            setProperty("service-name", it)
+            setProperty("service-port", 5701.toString())
+        }
+        networkConfig.port = 5701
     }
+}
+val localConfig: Config = Config().apply {
+    networkConfig.join.multicastConfig.isEnabled = false
+    networkConfig.join.tcpIpConfig.isEnabled = true
+    networkConfig.join.tcpIpConfig.addMember(System.getenv("HOSTNAME") ?: "localhost")
+    networkConfig.join.tcpIpConfig.addMember("localhost")
+    networkConfig.join.tcpIpConfig.addMember("localhost:5701")
+}
 
-data class Order(val id: String, val type: OrderType, val status: OrderStatus, val customer:String)
+data class Order(val id: String, val type: OrderType, val status: OrderStatus, val customer: String)
 
 enum class OrderStatus { PENDING, PICKED_UP, HOT, COLD }
 enum class OrderType { COFFEE, TEA, LATTE, CHOCOLATE_MILK, MILK }
