@@ -49,6 +49,7 @@ spec:
               path: /client/1
               port: http
           readinessProbe:
+            initialDelaySeconds: 60
             httpGet:
               path: /client/1
               port: http
