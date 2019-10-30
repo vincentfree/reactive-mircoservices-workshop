@@ -17,7 +17,7 @@ fun main() {
         )
     }
     val config = when (isKubeEnvironment) {
-        true -> kubeConfig.invoke(hazelcastServiceName)
+        true -> kubeConfig(hazelcastServiceName to hazelcastHost)
         false -> localConfig
     }
 

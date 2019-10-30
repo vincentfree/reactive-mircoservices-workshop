@@ -72,8 +72,10 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
 }
 
 val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
-val kubeConfig: (String) -> Config = {
+val kubeConfig: (Pair<String,String>) -> Config = {
     Config().apply {
+        networkConfig.interfaces.isEnabled = true
+        networkConfig.interfaces.interfaces = setOf(it.second)
         networkConfig.join.multicastConfig.isEnabled = false
         networkConfig.join.kubernetesConfig.isEnabled = true
         networkConfig.join.kubernetesConfig.apply {

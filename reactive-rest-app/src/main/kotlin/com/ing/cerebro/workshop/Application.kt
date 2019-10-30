@@ -13,13 +13,13 @@ fun main() {
     val hazelcastHost by lazy {
         System.getenv(
             System.getenv("release")
-            .replace("-", "_", false)
-            .toUpperCase() + "_VERTX_REST_SERVICE_PORT_80_TCP_ADDR"
+                .replace("-", "_", false)
+                .toUpperCase() + "_VERTX_REST_SERVICE_PORT_80_TCP_ADDR"
         )
     }
     val config by lazy {
         when (isKubeEnvironment) {
-            true -> kubeConfig(hazelcastServiceName)
+            true -> kubeConfig(hazelcastServiceName to hazelcastHost)
             false -> localConfig
         }
     }
