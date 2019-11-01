@@ -14,6 +14,7 @@
         <module>quarkus</module>
         <module>delay-client</module>
         <module>core</module>
+        <module>native-rest-service</module>
     </modules>
 
     <properties>
