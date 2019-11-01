@@ -12,5 +12,5 @@ spec:
       name: hazelcast
       targetPort: hazelcast
   selector:
-    app.kubernetes.io/name: {{ include "vertx-rest-service.name" . }}-hazelcast
+    app.kubernetes.io/name: {{ include "vertx-rest-service.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
