@@ -5,12 +5,13 @@ metadata:
   name: {{ include "vertx-delay-service.fullname" . }}-hazelcast
   labels:
 {{ include "vertx-delay-service.labels" . | indent 4 }}
+    hazelcast-cluster: true
 spec:
   type: LoadBalancer
   ports:
     - port: {{ .Values.hazelcast.port }}
       name: hazelcast
-      targetPort: 5701
+      targetPort: hazelcast
   selector:
     app.kubernetes.io/name: {{ include "vertx-delay-service.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
