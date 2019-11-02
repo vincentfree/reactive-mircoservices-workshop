@@ -80,9 +80,9 @@ val kubeConfig: (Pair<String,String>) -> Config = {
         networkConfig.join.multicastConfig.isEnabled = false
         networkConfig.join.kubernetesConfig.isEnabled = true
         networkConfig.join.kubernetesConfig.apply {
-            //setProperty("namespace", "reactive-workshop")
-            //setProperty("service-name", it)
-            //setProperty("service-port", 5701.toString())
+            setProperty("namespace", "reactive-workshop")
+            setProperty("service-name", it.first)
+//            setProperty("service-port", 5701.toString())
         }
         networkConfig.port = 5701
     }
