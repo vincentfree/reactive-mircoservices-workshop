@@ -84,6 +84,7 @@ val kubeConfig: (Pair<String,String>) -> Config = {
             setProperty("service-name", it.first)
             setProperty("service-label-name", "hazelcast-cluster")
             setProperty("service-label-value", "true")
+            setProperty("resolve-not-ready-addresses", "true")
 //            setProperty("service-port", 5701.toString())
         }
         networkConfig.port = 5701

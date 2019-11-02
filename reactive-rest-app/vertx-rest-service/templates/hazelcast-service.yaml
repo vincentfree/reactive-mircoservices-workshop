@@ -5,7 +5,7 @@ metadata:
   name: {{ include "vertx-rest-service.fullname" . }}-hazelcast
   labels:
 {{ include "vertx-rest-service.labels" . | indent 4 }}
-    hazelcast-cluster: true
+    hazelcast-cluster: "true"
 spec:
   type: LoadBalancer
   ports:

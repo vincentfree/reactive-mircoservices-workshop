@@ -5,7 +5,7 @@ metadata:
   name: {{ include "vertx-delay-service.fullname" . }}-hazelcast
   labels:
 {{ include "vertx-delay-service.labels" . | indent 4 }}
-    hazelcast-cluster: true
+    hazelcast-cluster: "true"
 spec:
   type: LoadBalancer
   ports:
