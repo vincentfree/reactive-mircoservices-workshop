@@ -81,7 +81,7 @@ val kubeConfig: (Pair<String,String>) -> Config = {
         networkConfig.join.kubernetesConfig.isEnabled = true
         networkConfig.join.kubernetesConfig.apply {
             setProperty("namespace", "reactive-workshop")
-            setProperty("service-name", it.first)
+//            setProperty("service-name", it.first)
             setProperty("service-label-name", "hazelcast-cluster")
             setProperty("service-label-value", "true")
             setProperty("resolve-not-ready-addresses", "true")
