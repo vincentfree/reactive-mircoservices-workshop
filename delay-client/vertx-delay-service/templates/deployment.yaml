@@ -5,6 +5,7 @@ metadata:
   name: {{ include "vertx-delay-service.fullname" . }}
   labels:
 {{ include "vertx-delay-service.labels" . | indent 4 }}
+    hazelcast-cluster: "true"
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:

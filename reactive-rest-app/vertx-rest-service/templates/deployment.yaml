@@ -5,6 +5,7 @@ metadata:
   name: {{ include "vertx-rest-service.fullname" . }}
   labels:
 {{ include "vertx-rest-service.labels" . | indent 4 }}
+    hazelcast-cluster: "true"
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
