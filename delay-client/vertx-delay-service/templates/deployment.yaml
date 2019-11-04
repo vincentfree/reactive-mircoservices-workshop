@@ -5,7 +5,6 @@ metadata:
   name: {{ include "vertx-delay-service.fullname" . }}
   labels:
 {{ include "vertx-delay-service.labels" . | indent 4 }}
-    hazelcast-cluster: "true"
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -17,6 +16,8 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "vertx-delay-service.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+        hazelcast-cluster: "true"
+        application-type: vertx
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -26,9 +27,6 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          #volumeMounts:
-          #  - mountPath: /var/run/secrets/tokens
-          #    name: {{ .Values.service_accounts.hazelcast.token }}
           envFrom:
             - configMapRef:
                 name: {{ include "vertx-delay-service.fullname" . }}-config
