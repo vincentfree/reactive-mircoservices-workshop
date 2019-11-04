@@ -69,7 +69,7 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
         //TESTING resolve of ip
         eventBusOptions.host = InetAddress.getByName(System.getenv("HOSTNAME")).hostAddress //"0.0.0.0" //clusterHost
         eventBusOptions.port = 18001
-        eventBusOptions.clusterPublicHost = clusterHost
+        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_EVENTBUS_SERVICE_HOST") //clusterHost
         eventBusOptions.clusterPublicPort = 5701
     }
 }
