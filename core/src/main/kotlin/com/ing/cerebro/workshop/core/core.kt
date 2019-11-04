@@ -68,6 +68,7 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
         eventBusOptions.isClustered = true
         //TESTING resolve of ip
         eventBusOptions.host = InetAddress.getByName(System.getenv("HOSTNAME")).hostAddress //"0.0.0.0" //clusterHost
+//        eventBusOptions.port = 5701
         eventBusOptions.port = 18001
         eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_EVENTBUS_SERVICE_HOST") //clusterHost
         eventBusOptions.clusterPublicPort = 5701
@@ -82,6 +83,7 @@ val kubeConfig: (Pair<String,String>) -> Config = {
         networkConfig.join.kubernetesConfig.apply {
             setProperty("namespace", "reactive-workshop")
             setProperty("service-name", "hazelcast-eventbus")
+            setProperty("service-port", 5701.toString())
         }
         networkConfig.port = 5701
     }
