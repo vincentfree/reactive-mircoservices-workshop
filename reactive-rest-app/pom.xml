@@ -163,18 +163,18 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-hazelcast</artifactId>
-            <exclusions>
+         <!--   <exclusions>
                 <exclusion>
                     <groupId>com.hazelcast</groupId>
                     <artifactId>hazelcast</artifactId>
                 </exclusion>
-            </exclusions>
+            </exclusions>-->
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
             <version>3.12.2</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-kubernetes</artifactId>
