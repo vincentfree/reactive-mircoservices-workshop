@@ -83,7 +83,7 @@ val kubeConfig: (Pair<String,String>) -> Config = {
         networkConfig.join.kubernetesConfig.isUsePublicIp = true
         networkConfig.join.kubernetesConfig.apply {
             setProperty("namespace", "reactive-workshop")
-            setProperty("service-name", "hazelcast-eventbus")
+//            setProperty("service-name", "hazelcast-eventbus")
 //            setProperty("service-port", 5701.toString())
 //            setProperty("service-label-name", "hazelcast-cluster")
 //            setProperty("service-label-value", "true")
