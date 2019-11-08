@@ -11,6 +11,12 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "vertx-delay-service.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
   template:
     metadata:
       labels:
