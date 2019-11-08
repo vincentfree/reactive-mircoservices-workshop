@@ -11,6 +11,7 @@ import io.vertx.core.json.jackson.DatabindCodec
 import io.vertx.core.spi.cluster.ClusterManager
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.json.jsonObjectOf
+import io.vertx.spi.cluster.hazelcast.ConfigUtil
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
 
 
@@ -84,7 +85,7 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
 val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
 
 val kubeConfig: (Pair<String, String>) -> Config = {
-    Config().apply {
+    ConfigUtil.loadConfig().apply {
         networkConfig.join.multicastConfig.isEnabled = false
         networkConfig.join.kubernetesConfig.isEnabled = true
 //        networkConfig.join.kubernetesConfig.isUsePublicIp = true

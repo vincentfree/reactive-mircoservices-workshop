@@ -32,7 +32,7 @@ class HelloService(private val router: Router, val vertx: Vertx) : RouterService
         get("/hello/").produces(ContentTypes.json).handler(helloWorld)
         get("/helloworld").produces(ContentTypes.plainText).handler(helloPlainWorld)
         get("/hello/:name").produces(ContentTypes.json).handler(helloInput)
-        put("/order").produces(ContentTypes.plainText).handler(processOrder)
+        put("/order").produces(ContentTypes.plainText).handler(::processOrder)
         put("/order/:times").produces(ContentTypes.json).handler(processOrders)
         get("/orders").produces(ContentTypes.json).handler(allOrders)
     }
@@ -80,9 +80,9 @@ class HelloService(private val router: Router, val vertx: Vertx) : RouterService
         it.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
             .end(JsonArray(orders.toList().map { o -> o.second }).encodePrettily())
     }
-    private val processOrder: (RoutingContext) -> Unit = {
+    private fun processOrder(ctx:RoutingContext) {
         val order = createOrder()
-        it.response().apply {
+        ctx.response().apply {
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
             isChunked = false
             end(order.id)
