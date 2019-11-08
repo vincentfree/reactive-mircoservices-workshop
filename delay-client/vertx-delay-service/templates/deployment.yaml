@@ -37,6 +37,10 @@ spec:
               value: {{ include "vertx-delay-service.fullname" . }}-config
             - name: HAZELCAST_SERVICE_NAME
               value: {{ include "vertx-delay-service.fullname" . }}-hazelcast
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           ports:
             - name: http
               containerPort: {{.Values.image.port}}

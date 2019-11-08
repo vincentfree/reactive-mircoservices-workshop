@@ -59,10 +59,12 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
         clusterManager = mgr
         eventBusOptions.isClustered = true
         //TESTING resolve of ip
-        when(isKubeEnvironment) {
+        when (isKubeEnvironment) {
             true -> {
                 eventBusOptions.host = System.getenv("HOSTNAME")
-                eventBusOptions.clusterPublicHost = System.getenv("HOSTNAME")
+                eventBusOptions.clusterPublicHost = System.getenv("MY_POD_IP")
+//                eventBusOptions.clusterPublicHost = System.getenv("HOSTNAME")
+                eventBusOptions.clusterPublicPort = 5701
 //        eventBusOptions.host = InetAddress.getByName(System.getenv("HOSTNAME")).hostAddress //"0.0.0.0" //clusterHost
 //        eventBusOptions.port = 18001
 //        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_SERVICE_NAME").replace("-hazelcast","") //clusterHost
@@ -81,7 +83,7 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
 
 val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
 
-val kubeConfig: (Pair<String,String>) -> Config = {
+val kubeConfig: (Pair<String, String>) -> Config = {
     Config().apply {
         networkConfig.join.multicastConfig.isEnabled = false
         networkConfig.join.kubernetesConfig.isEnabled = true
@@ -94,7 +96,7 @@ val kubeConfig: (Pair<String,String>) -> Config = {
 //            setProperty("service-label-value", "true")
             setProperty("pod-label-name", "application-type")
             setProperty("pod-label-value", "vertx")
-            
+
         }
         networkConfig.port = 5701
     }
