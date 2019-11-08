@@ -41,6 +41,7 @@ class RestVerticle : AbstractVerticle(), Loggable {
                 if (s.succeeded()) {
                     startPromise.complete()
                     logger.info("Server started on port $port ⚙️")
+                    logger.info("Clustered state: ${vertx.isClustered}")
                 } else {
                     logger.error("failed to start")
                     exitProcess(1)

@@ -31,6 +31,7 @@ class ClientVerticle : AbstractVerticle() {
             server.requestHandler(router)
             server.listen(port)
             logger.info("Server started on port $port ⚙️")
+            logger.info("Clustered state: ${vertx.isClustered}")
             startPromise.complete()
         }
     }
