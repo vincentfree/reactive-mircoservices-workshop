@@ -92,6 +92,7 @@ class HelloService(private val router: Router, val vertx: Vertx) : RouterService
     private fun createOrder(): Order {
         val uuid: UUID = UUID.randomUUID()
         val result = randomOrder(uuid)
+        //Order over event-bus
         publishOrder(result)
         return result
     }

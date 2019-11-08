@@ -33,6 +33,13 @@ class OrderService(private val router: Router, private val vertx: Vertx) : Route
     private val bus: EventBus = vertx.eventBus()
     private val orders: MutableMap<String, Order> = mutableMapOf()
 
+    fun consumeMessages(): MessageConsumer<JsonObject> = bus.consumer<JsonObject>("orders") {
+        val order = it.body().mapTo(Order::class.java)
+        orders.putIfAbsent(order.id, order)
+        logger.info("picked up: $order")
+        pickOrderUp(order.id)
+    }
+
     private val allOrders: (RoutingContext) -> Unit = { ctx ->
         ctx.response().apply {
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
@@ -80,12 +87,6 @@ class OrderService(private val router: Router, private val vertx: Vertx) : Route
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
             end(res.encodePrettily())
         }
-    }
-
-    fun consumeMessages(): MessageConsumer<JsonObject> = bus.consumer<JsonObject>("orders") {
-        val order = it.body().mapTo(Order::class.java)
-        orders.putIfAbsent(order.id, order)
-        pickOrderUp(order.id)
     }
 
     private fun pickOrderUp(id: String) {

@@ -40,13 +40,6 @@ object RetrieverConfig {
                 isOptional = true
             }
         )
-        /*addStore(
-            ConfigStoreOptions().apply {
-                type = "configmap"
-                isOptional = true
-                val name = System.getenv("configName") ?: "config"
-                config = jsonObjectOf("namespace" to "reactive-workshop", "name" to name)
-            })*/
     }
 }
 
@@ -66,11 +59,23 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
         clusterManager = mgr
         eventBusOptions.isClustered = true
         //TESTING resolve of ip
+        when(isKubeEnvironment) {
+            true -> {
+                eventBusOptions.host = System.getenv("HOSTNAME")
+                eventBusOptions.clusterPublicHost = System.getenv("HOSTNAME")
 //        eventBusOptions.host = InetAddress.getByName(System.getenv("HOSTNAME")).hostAddress //"0.0.0.0" //clusterHost
 //        eventBusOptions.port = 18001
-        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_SERVICE_NAME").replace("-hazelcast","") //clusterHost
+//        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_SERVICE_NAME").replace("-hazelcast","") //clusterHost
 //        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_EVENTBUS_SERVICE_HOST") //clusterHost
-        eventBusOptions.clusterPublicPort = 5701
+//        eventBusOptions.clusterPublicPort = 5701
+            }
+            false -> {
+                eventBusOptions.host = clusterHost
+//                eventBusOptions.port = 5701
+                eventBusOptions.clusterPublicHost = clusterHost
+//                eventBusOptions.clusterPublicPort = 5701
+            }
+        }
     }
 }
 
