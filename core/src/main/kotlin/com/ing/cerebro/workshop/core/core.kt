@@ -76,6 +76,7 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
 }
 
 val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
+
 val kubeConfig: (Pair<String,String>) -> Config = {
     Config().apply {
         networkConfig.join.multicastConfig.isEnabled = false
@@ -83,7 +84,12 @@ val kubeConfig: (Pair<String,String>) -> Config = {
         networkConfig.join.kubernetesConfig.apply {
             setProperty("namespace", "reactive-workshop")
             setProperty("service-name", "hazelcast-eventbus")
-            setProperty("service-port", 5701.toString())
+//            setProperty("service-port", 5701.toString())
+//            setProperty("service-label-name", "hazelcast-cluster")
+//            setProperty("service-label-value", "true")
+            setProperty("pod-label-name", "application-type")
+            setProperty("pod-label-value", "vertx")
+            
         }
         networkConfig.port = 5701
     }
