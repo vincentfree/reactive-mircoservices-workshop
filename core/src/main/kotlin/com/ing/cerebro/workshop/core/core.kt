@@ -12,7 +12,6 @@ import io.vertx.core.spi.cluster.ClusterManager
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.json.jsonObjectOf
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
-import java.net.InetAddress
 
 
 object ContentTypes {
@@ -67,10 +66,10 @@ fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost
         clusterManager = mgr
         eventBusOptions.isClustered = true
         //TESTING resolve of ip
-        eventBusOptions.host = InetAddress.getByName(System.getenv("HOSTNAME")).hostAddress //"0.0.0.0" //clusterHost
-//        eventBusOptions.port = 5701
-        eventBusOptions.port = 18001
-        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_EVENTBUS_SERVICE_HOST") //clusterHost
+//        eventBusOptions.host = InetAddress.getByName(System.getenv("HOSTNAME")).hostAddress //"0.0.0.0" //clusterHost
+//        eventBusOptions.port = 18001
+        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_SERVICE_NAME").replace("-hazelcast","") //clusterHost
+//        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_EVENTBUS_SERVICE_HOST") //clusterHost
         eventBusOptions.clusterPublicPort = 5701
     }
 }
@@ -81,6 +80,7 @@ val kubeConfig: (Pair<String,String>) -> Config = {
     Config().apply {
         networkConfig.join.multicastConfig.isEnabled = false
         networkConfig.join.kubernetesConfig.isEnabled = true
+        networkConfig.join.kubernetesConfig.isUsePublicIp = true
         networkConfig.join.kubernetesConfig.apply {
             setProperty("namespace", "reactive-workshop")
             setProperty("service-name", "hazelcast-eventbus")
