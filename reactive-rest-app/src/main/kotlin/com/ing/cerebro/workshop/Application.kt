@@ -28,7 +28,7 @@ fun main() {
         true -> {
             println("starting as non clustered vertx instance \uD83D\uDE03")
             // Native Transport for BSD-OSX
-//            val fut = Future.succeededFuture(Vertx.vertx(VertxOptions().setPreferNativeTransport(true)))
+            // val fut = Future.succeededFuture(Vertx.vertx(VertxOptions().setPreferNativeTransport(true)))
             val fut = Future.succeededFuture(Vertx.vertx())
             fut
         }

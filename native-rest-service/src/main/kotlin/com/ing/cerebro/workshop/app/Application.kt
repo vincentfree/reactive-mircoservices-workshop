@@ -12,7 +12,7 @@ fun main() {
         if(it.failed()) {
             println("Failed to start!")
         } else {
-            println("Started server on 9009 ⚙")
+            println("Started server on 9009!")
         }
     }
 }

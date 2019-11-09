@@ -43,7 +43,7 @@ class RestVerticle : AbstractVerticle(), Loggable {
                     logger.info("Server started on port $port ⚙️")
                     logger.info("Clustered state: ${vertx.isClustered}")
                 } else {
-                    logger.error("failed to start")
+                    logger.error("failed to start, reason: ${s.cause().message}")
                     exitProcess(1)
                 }
             }
