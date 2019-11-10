@@ -4,8 +4,10 @@ import com.ing.cerebro.workshop.core.*
 import io.vertx.config.ConfigRetriever
 import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
+import io.vertx.core.eventbus.MessageConsumer
 import io.vertx.core.http.HttpHeaders
 import io.vertx.core.impl.logging.Logger
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
@@ -18,18 +20,21 @@ import io.vertx.ext.web.handler.TimeoutHandler
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
 import java.util.*
-import kotlin.random.Random
 
 
-class HelloService(private val router: Router, vertx: Vertx) : RouterService {
+class HelloService(private val router: Router, val vertx: Vertx) : RouterService {
     override val logger: Logger = logger()
     private val bus: EventBus = vertx.eventBus()
+    private val customerId = UUID.randomUUID().toString()
+    private val orders: MutableMap<String, Order> = mutableMapOf()
 
     override fun finalize(): Router = router.apply {
         get("/hello/").produces(ContentTypes.json).handler(helloWorld)
         get("/helloworld").produces(ContentTypes.plainText).handler(helloPlainWorld)
         get("/hello/:name").produces(ContentTypes.json).handler(helloInput)
-        put("/order").produces(ContentTypes.plainText).handler(processOrder)
+        put("/order").produces(ContentTypes.plainText).handler(::processOrder)
+        put("/order/:times").produces(ContentTypes.json).handler(processOrders)
+        get("/orders").produces(ContentTypes.json).handler(allOrders)
     }
 
 
@@ -44,39 +49,70 @@ class HelloService(private val router: Router, vertx: Vertx) : RouterService {
         context.response().apply {
             putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
             isChunked = false
-            end(JsonObject().put("message", "Hello world!").toBuffer())
+            end(JsonObject().put("message", "Hello 🌍!").toBuffer())
         }
     }
     private val helloInput: (RoutingContext) -> Unit = {
         it.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
-            .end(json { obj("message" to "Hello ${it.pathParam("name")}!") }.toBuffer())
+            .end(json { obj("message" to "Hello ${it.pathParam("name")}! 👋") }.toBuffer())
     }
 
-    private val processOrder: (RoutingContext) -> Unit = {
-        val uuid: UUID = UUID.randomUUID()
-        val result = randomOrder(uuid)
-        publishOrder(result)
-        it.response().apply {
-            putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
-            isChunked = false
-            end(uuid.toString())
+    private val processOrders: (RoutingContext) -> Unit = {
+        val times = it.pathParam("times").toIntOrNull()
+        if (times != null) {
+            val json = JsonArray().apply {
+                for (i in 1..times) {
+                    add(createOrder().id)
+                }
+            }
+            it.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json).end(json.encodePrettily())
+        } else {
+            it.response().setStatusCode(400).end(json {
+                obj(
+                    "message" to "Path variable isn't a number 🧮",
+                    "value" to it.pathParam("times")
+                )
+            }.encodePrettily())
         }
     }
 
-    private fun publishOrder(order: Order) {
-        bus.publish("orders", JsonObject.mapFrom(order))
+    private val allOrders: (RoutingContext) -> Unit = {
+        it.response().putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.json)
+            .end(JsonArray(orders.toList().map { o -> o.second }).encodePrettily())
+    }
+    private fun processOrder(ctx:RoutingContext) {
+        val order = createOrder()
+        ctx.response().apply {
+            putHeader(HttpHeaders.CONTENT_TYPE, ContentTypes.plainText)
+            isChunked = false
+            end(order.id)
+        }
     }
 
-    private fun randomOrder(uuid: UUID): Order = Order(uuid.toString(), randomType(), OrderStatus.PENDING)
-    private fun randomType(): OrderType = when (Random.nextInt(0, 5)) {
-        0 -> OrderType.COFFEE
-        1 -> OrderType.TEA
-        2 -> OrderType.LATTE
-        3 -> OrderType.LATTE
-        4 -> OrderType.CHOCOLATE_MILK
-        5 -> OrderType.MILK
-        else -> throw IllegalArgumentException("Something went wrong with random")
+    private fun createOrder(): Order {
+        val uuid: UUID = UUID.randomUUID()
+        val result = randomOrder(uuid)
+        //Order over event-bus
+        publishOrder(result)
+        return result
     }
+
+    private fun publishOrder(order: Order) {
+        bus.send("orders", JsonObject.mapFrom(order))
+    }
+    //Presentation code snippet
+    fun consumeMessages(): MessageConsumer<JsonObject> = bus.consumer<JsonObject>("${customerId}-order-ready") {
+        val order = if (it.headers()["customer"] == customerId) it.body().mapTo(Order::class.java) else null
+        order?.let { o ->
+            orders.putIfAbsent(o.id, o)
+            vertx.setTimer(60000) {
+                orders.remove(o.id)
+            }
+        }
+    }
+
+    private fun randomOrder(uuid: UUID): Order = Order(uuid.toString(), randomType(), OrderStatus.PENDING, customerId)
+    private fun randomType(): OrderType = OrderType.values().random()
 }
 
 class TimeoutService(private val router: Router, vertx: Vertx) : RouterService {

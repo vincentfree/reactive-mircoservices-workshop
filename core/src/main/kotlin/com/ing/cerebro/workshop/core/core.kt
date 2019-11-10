@@ -11,6 +11,7 @@ import io.vertx.core.json.jackson.DatabindCodec
 import io.vertx.core.spi.cluster.ClusterManager
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.json.jsonObjectOf
+import io.vertx.spi.cluster.hazelcast.ConfigUtil
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
 
 
@@ -40,13 +41,6 @@ object RetrieverConfig {
                 isOptional = true
             }
         )
-        /*addStore(
-            ConfigStoreOptions().apply {
-                type = "configmap"
-                isOptional = true
-                val name = System.getenv("configName") ?: "config"
-                config = jsonObjectOf("namespace" to "reactive-workshop", "name" to name)
-            })*/
     }
 }
 
@@ -57,37 +51,66 @@ interface Loggable {
     }
 }
 
-    fun clusterConfig(config: Config): ClusterManager = HazelcastClusterManager(
-        config.setProperty("hazelcast.logging.type", "slf4j")
-    )
+fun clusterConfig(config: Config): ClusterManager = HazelcastClusterManager(
+    config.setProperty("hazelcast.logging.type", "slf4j")
+)
 
-    fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost: String = "localhost"): VertxOptions {
-        return options.apply {
-            clusterManager = mgr
-            eventBusOptions.host = clusterHost
-        }
-    }
-
-    val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
-    val kubeConfig: (String) -> Config = {
-        Config().apply {
-            networkConfig.join.multicastConfig.isEnabled = false
-            networkConfig.join.kubernetesConfig.isEnabled = true
-            networkConfig.join.kubernetesConfig.apply {
-                setProperty("namespace", "reactive-workshop")
-                setProperty("service-name", it)
+fun createClusterManager(options: VertxOptions, mgr: ClusterManager, clusterHost: String = "localhost"): VertxOptions {
+    return options.apply {
+        clusterManager = mgr
+        eventBusOptions.isClustered = true
+        //TESTING resolve of ip
+        when (isKubeEnvironment) {
+            true -> {
+                eventBusOptions.host = System.getenv("HOSTNAME")
+                eventBusOptions.clusterPublicHost = System.getenv("MY_POD_IP")
+//                eventBusOptions.clusterPublicHost = System.getenv("HOSTNAME")
+                eventBusOptions.clusterPublicPort = 5701
+//        eventBusOptions.host = InetAddress.getByName(System.getenv("HOSTNAME")).hostAddress //"0.0.0.0" //clusterHost
+//        eventBusOptions.port = 18001
+//        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_SERVICE_NAME").replace("-hazelcast","") //clusterHost
+//        eventBusOptions.clusterPublicHost = System.getenv("HAZELCAST_EVENTBUS_SERVICE_HOST") //clusterHost
+//        eventBusOptions.clusterPublicPort = 5701
+            }
+            false -> {
+                eventBusOptions.host = clusterHost
+//                eventBusOptions.port = 5701
+                eventBusOptions.clusterPublicHost = clusterHost
+//                eventBusOptions.clusterPublicPort = 5701
             }
         }
     }
-    val localConfig: Config = Config().apply {
-        networkConfig.join.multicastConfig.isEnabled = false
-        networkConfig.join.tcpIpConfig.isEnabled = true
-        networkConfig.join.tcpIpConfig.addMember(System.getenv("HOSTNAME") ?: "localhost")
-        networkConfig.join.tcpIpConfig.addMember("localhost")
-        networkConfig.join.tcpIpConfig.addMember("localhost:5701")
-    }
+}
 
-data class Order(val id: String, val type: OrderType, val status: OrderStatus)
+val isKubeEnvironment: Boolean by lazy { System.getenv().containsKey("KUBERNETES_SERVICE_HOST") }
+
+val kubeConfig: (Pair<String, String>) -> Config = {
+    ConfigUtil.loadConfig().apply {
+        networkConfig.join.multicastConfig.isEnabled = false
+        networkConfig.join.kubernetesConfig.isEnabled = true
+//        networkConfig.join.kubernetesConfig.isUsePublicIp = true
+        networkConfig.join.kubernetesConfig.apply {
+            setProperty("namespace", "reactive-workshop")
+//            setProperty("service-name", "hazelcast-eventbus")
+//            setProperty("service-port", 5701.toString())
+//            setProperty("service-label-name", "hazelcast-cluster")
+//            setProperty("service-label-value", "true")
+            setProperty("pod-label-name", "application-type")
+            setProperty("pod-label-value", "vertx")
+
+        }
+        networkConfig.port = 5701
+    }
+}
+val localConfig: Config = Config().apply {
+    networkConfig.join.multicastConfig.isEnabled = false
+    networkConfig.join.tcpIpConfig.isEnabled = true
+    networkConfig.join.tcpIpConfig.addMember(System.getenv("HOSTNAME") ?: "localhost")
+    networkConfig.join.tcpIpConfig.addMember("localhost")
+    networkConfig.join.tcpIpConfig.addMember("localhost:5701")
+}
+
+data class Order(val id: String, val type: OrderType, val status: OrderStatus, val customer: String)
 
 enum class OrderStatus { PENDING, PICKED_UP, HOT, COLD }
 enum class OrderType { COFFEE, TEA, LATTE, CHOCOLATE_MILK, MILK }

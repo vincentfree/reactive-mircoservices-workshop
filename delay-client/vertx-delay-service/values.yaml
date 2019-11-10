@@ -40,10 +40,10 @@ resources:
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
    limits:
-#     cpu: 300m
+     cpu: 1000m
      memory: 350Mi
    requests:
-#     cpu: 300m
+     cpu: 100m
      memory: 350Mi
 
 nodeSelector: {}
@@ -54,3 +54,11 @@ affinity: {}
 
 hazelcast:
   port: 5701
+
+service_accounts:
+  hazelcast:
+    name: hazelcast-sa
+    token: hazelcast-token
+
+readiness:
+  delay: 30

@@ -13,10 +13,8 @@ import io.vertx.ext.web.Router
 
 class ClientVerticle : AbstractVerticle() {
     private val logger = LoggerFactory.getLogger(this::class.java)
-    val router: Router by lazy { Router.router(vertx) }
-    val orderService: OrderService by lazy {
-        OrderService(router, vertx)
-    }
+    private val router: Router by lazy { Router.router(vertx) }
+    private val orderService: OrderService by lazy { OrderService(router, vertx) }
 
     override fun start(startPromise: Promise<Void>) {
         prepareJsonMapper()
@@ -32,7 +30,8 @@ class ClientVerticle : AbstractVerticle() {
             }
             server.requestHandler(router)
             server.listen(port)
-            logger.info("Server started on port $port")
+            logger.info("Server started on port $port ⚙️")
+            logger.info("Clustered state: ${vertx.isClustered}")
             startPromise.complete()
         }
     }
