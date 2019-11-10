@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono
 class Services {
     @Autowired
     lateinit var clientConfig: ClientConfig
-    val client = WebClient.create()
+    val client: WebClient = WebClient.create()
 
     @RequestMapping(value = ["/hello", "/hello/{name}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun hello(@PathVariable(name = "name", required = false) name: String?) =

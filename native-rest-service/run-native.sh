@@ -1,0 +1,1 @@
+time $(pwd)/target/native-rest
