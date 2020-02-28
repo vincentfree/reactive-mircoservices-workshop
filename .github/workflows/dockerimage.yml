@@ -1,0 +1,16 @@
+name: Docker Image CI
+
+on: [push]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app_folder: [reactive-rest-app, delay-client, spring-rest-service, reactive-spring-rest-service]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file ${{ matrix.app_folder }}/Dockerfile --tag ${{ matrix.app_folder }}:$(date +%s)
