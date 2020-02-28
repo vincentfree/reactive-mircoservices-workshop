@@ -1,5 +1,6 @@
 # Workshop reactive
 
+![Kotlin CI](https://github.com/vincentfree/reactive-mircoservices-workshop/workflows/Kotlin%20CI/badge.svg)
 
 ## Benchmark
 
