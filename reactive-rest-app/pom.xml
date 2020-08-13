@@ -15,7 +15,7 @@
 
     <properties>
         <kotlin.version>1.3.72</kotlin.version>
-        <hazelcast-kubernetes.version>1.5.3</hazelcast-kubernetes.version>
+        <hazelcast-kubernetes.version>1.5.4</hazelcast-kubernetes.version>
 <!--        <main.Class>com.ing.cerebro.workshop.ApplicationKt</main.Class>-->
         <exec.mainClass>com.ing.cerebro.workshop.ApplicationKt</exec.mainClass>
 <!--        <exec.mainClass>${main.Class}</exec.mainClass>-->
