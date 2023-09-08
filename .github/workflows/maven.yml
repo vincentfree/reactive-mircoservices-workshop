@@ -6,6 +6,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app_folder: [reactive-rest-app, delay-client] # , spring-rest-service, reactive-spring-rest-service
 
     steps:
     - uses: actions/checkout@v2
@@ -17,3 +20,11 @@ jobs:
       run: mvn -B -pl com.ing.cerebro.workshop:reactive-rest-app
               -pl com.ing.cerebro.workshop:delay-client
               -am package --file pom.xml
+    - uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.app_folder }}
+        path: ${{ matrix.app_folder }}/target/*.jar
+
+    - name: Build the Docker image
+      run: docker build . --file ${{ matrix.app_folder }}/Dockerfile --tag ${{ matrix.app_folder }}:$(date +%s)
+
